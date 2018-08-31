@@ -1,0 +1,42 @@
+
+@import "./../mdui/css/mdui.min.css";
+
+/*reset*/
+a{ 
+    text-decoration: none;
+}
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    margin-bottom: 100px;
+}
+.g-logo {
+    height: 56px;
+    line-height: 56px;
+    i{
+        font-style: normal;
+
+    }
+    a{color: #FF5722;}
+}
+.g-user-btn {
+    margin-top: 10px !important;
+    a.mdui-btn{ color:#fff;}
+}
+.g-user-header-btn {
+    a.user-avatar{
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+    }
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #000;
+    color: #fff;
+}
