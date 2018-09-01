@@ -10,4 +10,10 @@ class Topic extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // 定义话题与标签的关联
+    public function tags()
+    {
+      return $this->belongsToMany(Tag::class);
+    }
 }
