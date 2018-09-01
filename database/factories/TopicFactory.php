@@ -14,6 +14,8 @@ $factory->define(App\Models\Topic::class, function (Faker $faker) {
         'title' => $sentence,
         'body' => $faker->text(),
         'excerpt' => $sentence,
+        'up_count' => $faker->numberBetween(100,1000),
+        'view_count' => $faker->numberBetween(0,10000),
         'created_at' => $created_at,
         'updated_at' => $updated_at,
     ];

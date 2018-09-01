@@ -12,7 +12,7 @@
           </div>
           <div class="mdui-card-content mdui-clearfix">
               <div class="mdui-float-left">
-                <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons mdui-text-color-theme">&#xe8dc;</i></a>
+                <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons mdui-text-color-theme">&#xe8dc;</i></a> {{ $topic->up_count }}
               </div>
               <div class="mdui-float-right">
                 <a href="{{ route('users.show', [$topic->user_id]) }}" title="{{ $topic->user->name }}">
