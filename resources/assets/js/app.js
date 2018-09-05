@@ -5,6 +5,6 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-//require('./bootstrap');
+require('./bootstrap');
 
 require('./../mdui/js/mdui');

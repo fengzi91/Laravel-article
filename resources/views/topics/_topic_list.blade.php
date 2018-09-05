@@ -1,7 +1,7 @@
 @if (count($topics))
     <div class="g-topic-list">
       @foreach ($topics as $topic)
-        <div class="mdui-card mdui-m-t-3 mdui-hoverable">
+        <div class="mdui-card mdui-m-t-3">
           <div class="mdui-card-primary">
             <div class="mdui-card-primary-title mdui-typo">
               <a href="{{ route('topics.show', [$topic->id]) }}" title="{{ $topic->title }}">{{ $topic->title }}</a>
@@ -11,17 +11,24 @@
               {{ $topic->body }}
           </div>
           <div class="mdui-card-content mdui-clearfix">
-              <div class="mdui-float-left">
-                <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons mdui-text-color-theme">&#xe8dc;</i></a> {{ $topic->up_count }}
+              <div class="mdui-float-left g-topic-button-color">
+                <a href="javascript:;" class="mdui-btn mdui-btn-dense mdui-btn-icon mdui-hoverable">
+                  <i class="mdui-icon material-icons" style="font-size: 16px;">&#xe8dc;</i>
+                </a>
+                {{ $topic->up_count }}
+                <a href="javascript:;" class="mdui-btn mdui-m-l-1 mdui-btn-dense mdui-btn-icon mdui-hoverable">
+                  <i class="mdui-icon material-icons" style="font-size: 16px;">&#xe0b9;</i>
+                </a>
+                {{ $topic->view_count }}
+                @if (count($topic->tags))
+                  <i class="mdui-icon material-icons mdui-m-l-1">&#xe54e;</i>
+                  @foreach ($topic->tags as $tag)
+                    <a href="{{ route('tags.show', [$tag->id]) }}" class="mdui-m-r-1">{{$tag->name}}</a>
+                  @endforeach
+                @endif
               </div>
               <div class="mdui-float-right">
-                <a href="{{ route('users.show', [$topic->user_id]) }}" title="{{ $topic->user->name }}">
-                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
-                {{ $topic->user->name }}
-              </a>
-                        <span> • </span>
-                        <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-                        <span class="timeago" title="最后活跃于">{{ $topic->updated_at->diffForHumans() }}</span>
+                
               </div>
           </div>
         </div>

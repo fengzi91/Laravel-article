@@ -18,4 +18,14 @@ class TopicObserver
     {
         //
     }
+    public function saving(Topic $topic)
+    {
+        $topic->excerpt = make_excerpt($topic->body);
+
+        // 给body加上内部链接
+        // 获得所有标题信息
+        
+        $topic->body = make_link($topic->body);
+        $topic->body = clean($topic->body, 'user_topic_body');
+    }
 }

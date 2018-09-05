@@ -16,11 +16,12 @@ use Carbon\Carbon;
 $factory->define(App\Models\User::class, function (Faker $faker) {
     static $password;
     $now = Carbon::now()->toDateTimeString();
-
+    $avatar = '/uploads/images/avatars/201809/04/1_1536043314_gxnPMZmhCF.jpeg';
     return [
         'name' => $faker->name,
         'email' => $faker->unique()->safeEmail,
         'password' => $password ?: $password = bcrypt('password'), // secret
+        'avatar' => $avatar,
         'remember_token' => str_random(10),
         'created_at' => $now,
         'updated_at' => $now,

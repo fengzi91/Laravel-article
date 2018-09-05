@@ -8,10 +8,11 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'LaraBBS') - Laravel 进阶教程</title>
+    <title>@yield('title', 'LaraBBS') - 梗来了 - 梗的搬运工</title>
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    @yield('styles')
 </head>
 
 <body class="mdui-theme-primary-blue mdui-theme-accent-deep-orange">
@@ -19,16 +20,13 @@
 
         @include('layouts._header')
 
-        <div class="mdui-container">
-
             @yield('content')
-
-        </div>
 
         @include('layouts._footer')
     </div>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+    @yield('scripts')
 </body>
 </html>

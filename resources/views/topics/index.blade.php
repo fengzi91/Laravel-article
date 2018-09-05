@@ -3,24 +3,25 @@
 @section('title', '内容列表')
 
 @section('content')
+<div class="mdui-container">
 <div class="mdui-row mdui-m-t-5">
-    <div class="mdui-col-md-8">
+    <div class="">
         <div class="mdui-clearfix">
             <div class="mdui-float-left mdui-p-l-2">
                 <div class="mdui-typo-headline">内容列表</div>
             </div>
             <div class="mdui-float-right mdui-p-r-2">
-                <a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">more_vert</i></a>
+                <a href="{{ route('topics.create') }}" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">&#xe145;</i></a>
             </div>
         </div>
-        <div class="mdui-divider" style="height:2px;"></div>
+        <div class="mdui-divider" style="height:2px;margin-top:2px;"></div>
     </div>
 </div>
 <div class="mdui-row">
-    <div class="mdui-col-md-8">
+    <div class="mdui-col-md-6 mdui-col-offset-md-3">
     @include('topics._topic_list', ['topics' => $topics])
+    <div class="g-pagination">{!! $topics->appends(Request::except('page'))->render() !!}</div>
     </div>
 </div>
-                {!! $topics->appends(Request::except('page'))->render() !!}
-
+</div>
 @endsection

@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'avatar', 'introduction'
     ];
 
     /**
@@ -26,4 +26,22 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function isAuthorOf($model)
+    {
+        return $this->id == $model->user_id;
+    }
+
+    // 用户和回复的关联
+    
+    public function replies()
+    {
+        return $this->hasMany(Reply::class);
+    }
+
+    // 用户和文章的关联
+    public function topics()
+    {
+        return $this->hasMany(Topic::class);
+    }
 }
