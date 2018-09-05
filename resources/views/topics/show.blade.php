@@ -21,9 +21,9 @@
             <div class="mdui-card-primary">
                 <div class="mdui-card-primary-title">评论</div>
             </div>
-            <div class="mdui-card-content">
+            <div class="mdui-card-content mdui-p-t-0">
                 @include('topics._reply_box', ['topic' => $topic])
-                @include('topics._reply_list', ['replies' => $topic->replies()->with('user')->get()])
+                @include('topics._reply_list', ['replies' => $topic->replies()->with('user')->recent()->paginate(5)])
             </div>
         </div>
     </div>

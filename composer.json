@@ -16,7 +16,8 @@
         "mews/captcha": "^2.2",
         "mews/purifier": "~2.0",
         "overtrue/laravel-lang": "~3.0",
-        "overtrue/pinyin": "~3.0"
+        "overtrue/pinyin": "~3.0",
+        "yzalis/identicon": "^1.2"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "~3.1",

@@ -10,7 +10,7 @@ class UsersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['show']]);
+        $this->middleware('auth', ['except' => ['show', 'generator']]);
     }
 
     public function show(User $user)
@@ -45,5 +45,13 @@ class UsersController extends Controller
 
         $user->update($data);
         return redirect()->route('users.show', $user->id)->with('success', '个人资料更新成功！');
+    }
+    // 生成一个默认的头像
+    public function generator(User $user) 
+    {
+        $identicon = new \Identicon\Identicon();
+        $avatar = $identicon->displayImage($user->email);
+        return response($avatar, 200)
+              ->header('Content-Type', 'image/png');
     }
 }

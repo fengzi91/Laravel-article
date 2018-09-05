@@ -1,8 +1,8 @@
-<nav class="mdui-container-fluid mdui-p-x-0 mdui-shadow-3" mdui-headroom style="position: fixed; top: 0; left: 0; right: 0;">
-    <div class="mdui-color-blue mdui-color-theme">
+<nav class="mdui-container-fluid mdui-p-x-0 mdui-shadow-4" mdui-headroom style="position: fixed; top: 0; left: 0; right: 0;z-index:1;">
+    <div class="">
         <div class="mdui-container mdui-center mdui-row">
             <div class="g-logo mdui-col-xs-4">
-                <a class="mdui-typo-headline mdui-hidden-xs mdui-text-color-white g-logo" href="{{ url('/') }}">
+                <a class="mdui-typo-headline mdui-hidden-xs mdui-text-color-accent g-logo" href="{{ url('/') }}">
                     <i>梗</i>来了
                 </a>
                 <a href="/topics">浏览文章</a>
@@ -14,8 +14,9 @@
             </div>
             @else
             <div class="mdui-float-right mdui-valign g-user-header-btn mdui-p-t-1">
-                <a href="#" class="user-avatar mdui-ripple" mdui-menu="{target: '#example-attr', position: 'bottom', align: 'right', covered: false}">
-                    <img src="{{ Auth::user()->avatar }}" class="mdui-img-circle" width="40" height="40" />
+                <a href="{{ route('notifications.index') }}" class="mdui-btn mdui-m-r-1">新消息({{ Auth::user()->notification_count }})</a>
+                <a href="javascript:void(0);" class="user-avatar mdui-ripple" mdui-menu="{target: '#example-attr', position: 'bottom', align: 'right', covered: false}">
+                    <img src="{{ Auth::user()->newavatar }}" class="mdui-img-circle" width="40" height="40" />
                 </a>
                 <ul class="mdui-menu" id="example-attr">
                     <li class="mdui-menu-item">

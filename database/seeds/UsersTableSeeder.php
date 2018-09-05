@@ -14,7 +14,7 @@ class UsersTableSeeder extends Seeder
     {
         $faker = app(Faker\Generator::class);
 
-        $users = factory(User::class)->times(10)->make();
+        $users = factory(User::class)->times(80)->make();
 
         $user_array = $users->makeVisible(['password', 'remember_token'])->toArray();
 
@@ -23,6 +23,7 @@ class UsersTableSeeder extends Seeder
         $user = User::find(1);
         $user->name = 'fengzi91';
         $user->email = 'fengzi91@vip.qq.com';
+        $user->password = bcrypt('123000qq');
         // $user->avatar = 'https://fsdhubcdn.phphub.org/uploads/images/201710/14/1/ZqM7iaP4CR.png?imageView2/1/w/200/h/200';
         $user->save();
     }

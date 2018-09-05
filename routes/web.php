@@ -18,9 +18,9 @@ Auth::routes();
 Route::resource('users', 'UsersController', ['only' => ['show', 'update', 'edit']]);
 
 Route::get('users/editavatar/{user}', 'UsersController@editAvatar')->name('users.editavatar');
-
+Route::get('users/avatar/{user}', 'UsersController@generator')->name('users.avatar');
 Route::post('users/editavatar/{user}', 'UsersController@saveAvatar')->name('users.editavatar');
-
+Route::get('users/follows/{user}', 'UsersController@follow')->name('users.follows');
 
 Route::resource('topics', 'TopicsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
 Route::resource('tags', 'TagsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
@@ -28,4 +28,6 @@ Route::resource('tags', 'TagsController', ['only' => ['index', 'show', 'create',
 // 图片上传地址
 
 Route::post('upload_image', 'TopicsController@uploadImage')->name('topics.upload_image');
-Route::resource('replies', 'RepliesController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
+Route::resource('replies', 'RepliesController', ['only' => [ 'store', 'destroy']]);
+
+Route::resource('notifications', 'NotificationsController', ['only' => ['index']]);

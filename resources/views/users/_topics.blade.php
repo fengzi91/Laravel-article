@@ -1,11 +1,11 @@
 @if (count($topics))
-<div class="mdui-list">
+<div class="mdui-card mdui-typo">
   @foreach ($topics as $topic)
-  <li class="mdui-list-item">
-      <a href="{{ route('topics.show', $topic->id) }}">
-        {{ $topic->title }}
-      </a>
-  </li>
+  <div class="mdui-card-content">
+        <a href="{{ route('topics.show', $topic->id) }}">
+          {{ $topic->title }}
+        </a>
+  </div>
   @endforeach
 </div>
 @else
