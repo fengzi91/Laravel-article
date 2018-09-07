@@ -16,7 +16,7 @@
 </head>
 
 <body class="mdui-theme-primary-blue mdui-theme-accent-deep-orange">
-    <div class="{{ route_class() }}-page">
+    <div class="{{ route_class() }}-page" id="app">
 
         @include('layouts._header')
 
@@ -24,7 +24,9 @@
 
         @include('layouts._footer')
     </div>
-
+    @if (app()->isLocal())
+        @include('sudosu::user-selector')
+    @endif
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     @yield('scripts')

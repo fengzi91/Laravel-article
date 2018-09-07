@@ -1,5 +1,6 @@
 
 @import "./../mdui/css/mdui.min.css";
+@import "./markdown.css";
 
 /*reset*/
 
@@ -9,29 +10,61 @@ html {
 }
 body {
     margin-bottom: 100px;
-    padding-top: 56px;
+    padding-top: 64px;
+    background-color: rgb(241,241,241);
+    color: rgba(0, 0, 0, .87);
+}
+.g-nav{
+    position: fixed; top: 0; left: 0; right: 0;z-index:1;
+    background-color: rgb(255,255,255);
+    box-shadow:0 1px 8px rgba(0,0,0,.3);
+    font-size: 21px;
 }
 .g-logo {
-    height: 56px;
-    line-height: 56px;
+    height: 64px;
+    line-height: 64px;
     i{
         font-style: normal;
-
     }
     a{
         color: #FF5722;
         text-decoration: none;
     }
+    a.g-header-link {
+        font-size: 70%;
+        color: rgba(0, 0, 0, .87);
+
+    }
 }
 .g-user-btn {
-    margin-top: 10px !important;
-    a.mdui-btn{ color:#fff;}
+    margin-top: 16px !important;
+    a.mdui-btn{ 
+        color:#fff;
+        background-color: #03A9F4;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 8px;
+        min-width: 64px;
+    }
 }
 .g-user-header-btn {
+    margin-top: 16px !important;
     a.user-avatar{
-        height: 40px;
-        width: 40px;
+        height: 32px;
+        width: 32px;
         border-radius: 50%;
+        img {
+            width:32px;
+            height:32px;
+        }
+    }
+    a.mdui-btn{
+        color:#03A9F4;
+        //background-color: #03A9F4;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 8px;
+        min-width: 64px;
     }
 }
 .g-user-tab-link {
@@ -73,6 +106,10 @@ body {
     .mdui-btn {
         background-color: #eee;
     }
+}
+.g-edit-topics{
+    background-color: rgba(255,255,255,1);
+    padding: 32px 0;
 }
 /* 分页定制 */
 
@@ -133,4 +170,61 @@ body {
         right: 16px;
         color: #f00;
     }
+}
+
+/*Vue 的动画*/
+.g-reply-list-item {
+    position:relative;
+    border-bottom:2px solid #ddd;
+}
+ul.list-next{
+        .list-enter-active{
+            transition: all .8s ease;
+        } 
+        .list-leave-active {
+            transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .list-enter {
+            transform: translateX(800px);
+        }
+        .list-enter-to, .list-leave {
+            transform: translate(0,0);
+        }
+        .list-leave-to{
+            transform: translateX(-800px);
+        }
+}
+ul.list-prev{
+        .list-enter-active{
+            transition: all .8s ease;
+        } 
+        .list-leave-active {
+            transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .list-enter {
+            transform: translateX(-800px);
+        }
+        .list-enter-to, .list-leave {
+            transform: translate(0,0);
+        }
+        .list-leave-to{
+            transform: translateX(800px);
+        }
+}
+ul.list-add{
+        .list-enter-active{
+            transition: all .8s ease;
+        } 
+        .list-leave-active {
+            transition: all .5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .list-enter {
+            transform: translateY(-88px);
+        }
+        .list-enter-to, .list-leave {
+            transform: translate(0,0);
+        }
+        .list-leave-to{
+            transform: translateY(88px);
+        }
 }

@@ -7,4 +7,9 @@
 
 require('./bootstrap');
 
-require('./../mdui/js/mdui');
+require('./mdui');
+
+require('./edit.topic');
+
+window.Vue = require('vue');
+

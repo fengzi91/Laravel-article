@@ -20,6 +20,7 @@ class TopicObserver
     }
     public function saving(Topic $topic)
     {
+        //dd($topic);
         $topic->excerpt = make_excerpt($topic->body);
 
         // 给body加上内部链接
@@ -27,5 +28,9 @@ class TopicObserver
         
         $topic->body = make_link($topic->body);
         $topic->body = clean($topic->body, 'user_topic_body');
+    }
+    public function deleted(Topic $topic)
+    {
+        \DB::table('replies')->where('topic_id', $topic->id)->delete();
     }
 }

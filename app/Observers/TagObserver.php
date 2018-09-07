@@ -14,8 +14,10 @@ class TagObserver
         //
     }
 
-    public function updating(Tag $tag)
+    public function saving(Tag $tag)
     {
-        //
+      if(empty($tag->description)) {
+        $tag->description = $tag->name;
+      }
     }
 }

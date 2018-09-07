@@ -1,15 +1,33 @@
 @extends('layouts.app')
-
+@section('title', $topic->title )
 @section('content')
 <div class="mdui-container">
 <div class="mdui-row mdui-m-t-5">
     <div class="mdui-col-md-8">
         <div class="mdui-card">  
             <div class="mdui-card-primary">
-                <div class="mdui-card-primary-title">{{ $topic->title }}</div>
+                <div class="mdui-card-primary-title">{{ $topic->title }} @{{title + id}}</div>
+            </div>
+            <div class="mdui-card-content markdown-body mdui-typo">
+                {!! Markdown::html($topic->body) !!}
             </div>
             <div class="mdui-card-content">
-                {!! $topic->body !!}
+                @if (count($topic->tags))
+                    @foreach ($topic->tags as $tag)
+                    <div class="mdui-chip mdui-m-r-1"> 
+                        <span class="mdui-chip-title">
+                            <a href="{{ route('tags.show', $tag->id) }}">{{ $tag->name }}</a>
+                        </span>
+                        @can('destroy', $topic)   
+                            <span class="mdui-chip-delete" onclick="event.preventDefault();document.getElementById('delete-form-{{$tag->id}}').submit();"><i class="mdui-icon material-icons">cancel</i></span>
+                            <form id="delete-form-{{$tag->id}}" action="{{ route('topics.deletetag', $topic->id) }}" method="POST" style="display: none;">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="tagid" value="{{$tag->id}}" />
+                            </form>
+                        @endcan
+                    </div>
+                    @endforeach
+                @endif
             </div>
             <div class="mdui-card-actions">
                 <a href="{{ route('topics.edit', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
@@ -19,11 +37,12 @@
         </div>
         <div class="mdui-card mdui-m-t-4">
             <div class="mdui-card-primary">
-                <div class="mdui-card-primary-title">评论</div>
+                <div class="mdui-card-primary-title">评论(@{{comments_total}})</div>
             </div>
             <div class="mdui-card-content mdui-p-t-0">
-                @include('topics._reply_box', ['topic' => $topic])
-                @include('topics._reply_list', ['replies' => $topic->replies()->with('user')->recent()->paginate(5)])
+                @include('topics._reply_box_vue', ['topic' => $topic])
+                @include('topics._reply_list_vue')
+                {{--@include('topics._reply_list', ['replies' => $topic->replies()->with('user')->recent()->paginate(5)])--}}
             </div>
         </div>
     </div>
@@ -70,4 +89,93 @@
     </div>
 </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script>
+        var user_id = @guest 0 @else {{Auth::id()}}@endguest;
+        var app = new Vue({
+            el: '#app',
+            data: {
+                title: '{{$topic->title}}',
+                id: {{$topic->id}},
+                user_id: user_id,
+                comments_total: 0,
+                comment_content: '',
+                comment_submit_haserror: false,
+                comments: [],
+                comment_submit_error_message: '',
+                get_list_url: '{{ route('topics.getcomments', $topic->id)}}',
+                submit_url: '{{ route('replies.store') }}',
+                next_page_url: '',
+                prev_page_url: '',
+                updating: false,
+                list_class: 'list-next'
+            },
+            mounted: function () {
+                this.comments_list()
+            },
+            methods: {
+                submits: function () {
+                    if (this.comment_content) {
+                        this.comment_submit_haserror = false
+                        var _this = this;
+                        axios.post(_this.submit_url, {
+                            topic_id: _this.id,
+                            content: _this.comment_content
+                        })
+                        .then(function (response) {
+                            // 设置动画
+                            _this.list_class = 'list-add';
+                            _this.comments.unshift(response.data.data);
+                            _this.comments.pop();
+                        })
+                        .catch(function (error) {
+                            _this.comment_submit_haserror = true;
+                            if (error.response) {
+                                if(error.response.data.errors.content) {
+                                    var content = error.response.data.errors.content;
+                                    _this.comment_submit_error_message = content[0];
+                                } else {
+                                    _this.comment_submit_error_message = error.response.data.errors.message;
+                                }
+                            }
+                            console.log('发生了错误');
+                        });
+
+                    } else {
+                        this.comment_submit_haserror = true;
+                        this.comment_submit_error_message = '请填写评论内容';
+                    }
+                },
+                comments_list: function () {
+                    var _this = this;
+                    this.updating = true;
+                    axios.get(_this.get_list_url).then( function (response) {
+                        var data = response.data;
+                        _this.comments_total = data.total;
+                        _this.comments = data.data;
+                        _this.next_page_url = data.next_page_url;
+                        _this.prev_page_url = data.prev_page_url;
+                        _this.updating = false;
+                    });
+                },
+                get_prev: function () {
+                    if(this.prev_page_url) {
+                        this.list_class = 'list-prev';
+                        this.get_list_url = this.prev_page_url;
+                        this.comments_list();
+                    }
+                },
+                get_next: function () {
+                    if(this.next_page_url) {
+                        this.list_class = 'list-next';
+                        this.get_list_url = this.next_page_url;
+                        this.comments_list();
+                    }
+                }
+            }
+        })
+    </script>
+
 @endsection

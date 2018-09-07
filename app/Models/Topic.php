@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Markdown;
 class Topic extends Model
 {
+    use Traits\TopicAutoAddLinkHelper;
+
     protected $fillable = ['title', 'body', 'excerpt', 'slug'];
 
     public function user()
@@ -37,7 +40,7 @@ class Topic extends Model
                 break;
         }
         // 预加载防止 N+1 问题
-        return $query->with('user', 'category');
+        return $query->with('user', 'tags');
     }
 
     public function scopeRecentReplied($query)
@@ -57,5 +60,28 @@ class Topic extends Model
     public function link($params = [])
     {
         return route('topics.show', array_merge([$this->id], $params));
+    }
+
+    // 话题自动添加标签
+    public function autoTag($tags)
+    {
+        $ids = [];
+        if(count($tags)) {
+            
+            foreach($tags as $tag) {
+                $t = Tag::where('name', $tag)->first();
+                if(!$t) {
+                   $ids[] = Tag::insertGetId(['name' => $tag, 'description' => $tag]);
+                } else {
+                    $ids[] = $t->id;
+                }
+            }
+        }
+        return $ids;
+    }
+
+    public function getBodyAttribute($value)
+    {
+        return $value;
     }
 }

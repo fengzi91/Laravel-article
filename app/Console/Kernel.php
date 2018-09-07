@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+        // 一小时执行一次加链接
+        $schedule->command('geng:auto-add-topics-link')->everyFiveMinutes()->withoutOverlapping();
     }
 
     /**

@@ -14,7 +14,7 @@
   <button type="submit" class="mdui-btn mdui-ripple mdui-color-blue-600">回复</button>
   @endauth
   @guest
-  <button type="submit" class="mdui-btn mdui-ripple mdui-color-blue-600" disabled>回复</button>
+  <button @click="comment" type="submit" class="mdui-btn mdui-ripple mdui-color-blue-600" disabled>回复</button>
   <a href="{{ route('login') }}" target="_blank">登录</a>
   @endguest
 </form>

@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TopicRequest;
 use Auth;
 use App\Handlers\ImageUploadHandler;
-
+use App\Models\Tag;
+use Markdown;
 class TopicsController extends Controller
 {
     public function __construct()
@@ -16,9 +17,10 @@ class TopicsController extends Controller
         $this->middleware('auth', ['except' => ['index', 'show']]);
     }
 
-	public function index()
+	public function index(Request $request, Topic $topic)
 	{
-		$topics = Topic::with(['user', 'tags'])->paginate(10);
+		//dd($topic->test());
+        $topics = Topic::with(['user', 'tags'])->withOrder($request->order)->paginate(10);
 		return view('topics.index', compact('topics'));
 	}
 
@@ -34,9 +36,15 @@ class TopicsController extends Controller
 
 	public function store(TopicRequest $request, Topic $topic)
 	{
-    $topic->fill($request->all());
-    $topic->user_id = Auth::id();
-    $topic->save();
+        //if($request->get('tag'))
+        $tagIds = [];
+        if ($request->get('tag')) {
+            $tagIds = $topic->autoTag($request->get('tag'));
+        }
+        $topic->fill($request->all());
+        $topic->user_id = Auth::id();
+        $topic->save();
+        $topic->tags()->attach($tagIds);
 		return redirect()->route('topics.show', $topic->id)->with('message', '内容创建成功!');
 	}
 
@@ -48,9 +56,15 @@ class TopicsController extends Controller
 
 	public function update(TopicRequest $request, Topic $topic)
 	{
-		$this->authorize('update', $topic);
-		$topic->update($request->all());
+        $this->authorize('update', $topic);
 
+		$topic->update($request->all());
+        // 处理话题的标签
+        $tagIds = [];
+        if ($request->get('tag')) {
+            $tagIds = $topic->autoTag($request->get('tag'));
+        }
+        $topic->tags()->sync($tagIds);
 		return redirect()->route('topics.show', $topic->id)->with('message', 'Updated successfully.');
 	}
 
@@ -61,6 +75,19 @@ class TopicsController extends Controller
 
 		return redirect()->route('topics.index')->with('message', 'Deleted successfully.');
 	}
+    // 删除话题下的标签
+    public function deleteTag(Topic $topic, Request $request) 
+    {
+        //拥有删除话题的权限，才可以删除标签
+        $this->authorize('destroy', $topic);
+        $topic->tags()->detach($request->tagid);
+        return redirect()->route('topics.show', $topic->id)->with('message', '成功删除一个标签！');
+    }
+    // 获取评论
+    public function getComments(Topic $topic, Request $request) 
+    {
+        return $topic->replies()->with('user')->recent()->paginate(5);
+    }
   /**
    * 图片上传
    * @param  Request            $request  [description]
