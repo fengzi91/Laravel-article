@@ -19,7 +19,7 @@
                 <a href="javascript:;" class="mdui-btn mdui-m-l-1 mdui-btn-dense mdui-btn-icon mdui-hoverable">
                   <i class="mdui-icon material-icons" style="font-size: 16px;">&#xe0b9;</i>
                 </a>
-                {{ $topic->view_count }}
+                {{ $topic->reply_count }}
                 @if (count($topic->tags))
                   <i class="mdui-icon material-icons mdui-m-l-1">&#xe54e;</i>
                   @foreach ($topic->tags as $tag)

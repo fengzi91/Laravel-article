@@ -1,8 +1,15 @@
-<div class="mdui-container-fluid" style="min-height: 40vh; background-image: url('/uploads/images/users/1/banner.jpg');background-size:cover;background-repeat:no-repeat;background-position:50%">
+<div class="mdui-container-fluid g-user-banner-full" @if ($user->banner) style="background-image:url('{{ $user->banner }}');background-size:212px;background-repeat:repeat;@endif">
   <div class="mdui-container">
     <div class="mdui-row g-user-banner ">
       <div class="g-user-banner-avatar">
-        <a href="{{ route('users.editavatar', $user->id) }}"><img src="{{ $user->newavatar }}" /></a>
+        @can ('update', $user)
+        <a href="{{ route('users.editavatar', $user->id) }}">
+        @endcan
+          <img src="{{ $user->newavatar }}" />
+        @can ('update', $user)  
+        </a>
+        @endcan
+
       </div>
       <div class="g-user-banner-info">
         <h1>{{ $user->name }}</h1>

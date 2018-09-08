@@ -23,7 +23,7 @@
        <input type="hidden" name="_method" value="PUT">
        <input type="file" name="avatar"/>
        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-       <button type="submit" class="mdui-btn mdui-btn-raised">上 传</button>
+       <button type="submit" class="mdui-btn mdui-color-blue-600">上 传</button>
     </form>
   </div>
 </div>

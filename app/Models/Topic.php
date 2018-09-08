@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Markdown;
+
 class Topic extends Model
 {
     use Traits\TopicAutoAddLinkHelper;

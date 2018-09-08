@@ -15,7 +15,7 @@ Route::get('/', 'PagesController@root')->name('root');
 
 Auth::routes();
 
-Route::resource('users', 'UsersController', ['only' => ['show', 'update', 'edit']]);
+Route::resource('users', 'UsersController', ['only' => ['index', 'show', 'update', 'edit']]);
 
 Route::get('users/editavatar/{user}', 'UsersController@editAvatar')->name('users.editavatar');
 Route::get('users/avatar/{user}', 'UsersController@generator')->name('users.avatar');

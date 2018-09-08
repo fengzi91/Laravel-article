@@ -8,6 +8,30 @@ class ImageUploadHandler
 {
     protected $allowed_ext = ["png", "jpg", "gif", 'jpeg'];
 
+
+    public function saveWithContent($content, $folder, $file_prefix)
+    {
+        $folder_name = "uploads/images/$folder/" . date("Ym/d", time());
+        $upload_path = public_path() . '/' . $folder_name;
+        $extension = 'png';
+        $filename = $file_prefix . '_' . time() . '_' . str_random(10) . '.' . $extension;
+        if (empty($content)) {
+            return false;
+        }
+        $pathinfo = $upload_path . '/' . $filename;
+
+        // 需要创建目录
+        if( ! is_dir(dirname($pathinfo))) {
+            if( ! mkdir(dirname($pathinfo).'/', 0777, TRUE) )
+            {
+                return false;
+            }
+        }
+        file_put_contents($upload_path . '/' . $filename, $content);
+        return [
+            'path' => config('app.url') . "/$folder_name/$filename"
+        ];
+    }
     public function save($file, $folder, $file_prefix, $max_width = false)
     {
         // 构建存储的文件夹规则，值如：uploads/images/avatars/201709/21/

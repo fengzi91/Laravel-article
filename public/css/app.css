@@ -569,6 +569,14 @@ body {
 
 /* 个人中心 */
 
+.g-user-banner-full {
+  min-height: 40vh;
+  background-image: url("/images/banner.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
 .g-user-banner {
   display: -webkit-box !important;
   display: -ms-flexbox !important;

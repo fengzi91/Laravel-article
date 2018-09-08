@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
         \Carbon\Carbon::setLocale('zh');
         \App\Models\Topic::observe(\App\Observers\TopicObserver::class);
         \App\Models\Reply::observe(\App\Observers\ReplyObserver::class);
+        \App\Models\User::observe(\App\Observers\UserObserver::class);
         Validator::extend('clean', function ($attribute, $value, $parameters, $validator) {
             $value = clean($value, 'user_topic_body');
             return !empty($value);

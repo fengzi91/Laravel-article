@@ -38,7 +38,7 @@
                     @endif
                 </div>
         <div class="mdui-textfield">
-          <button type="submit" class="mdui-btn mdui-btn-">提 交</button>
+          <button type="submit" class="mdui-btn mdui-color-blue-600">提 交</button>
         </div>       
     </form>
   </div>

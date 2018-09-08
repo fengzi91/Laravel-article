@@ -101,6 +101,8 @@
                 id: {{$topic->id}},
                 user_id: user_id,
                 comments_total: 0,
+                comments_limit: 0,
+                comments_line: 5,
                 comment_content: '',
                 comment_submit_haserror: false,
                 comments: [],
@@ -128,7 +130,11 @@
                             // 设置动画
                             _this.list_class = 'list-add';
                             _this.comments.unshift(response.data.data);
-                            _this.comments.pop();
+                            if (_this.comments.length > _this.comments_limit) {
+                                _this.comments.pop();
+                            }
+                            _this.comments_total ++;
+                            _this.comment_content = '';
                         })
                         .catch(function (error) {
                             _this.comment_submit_haserror = true;
@@ -154,10 +160,13 @@
                     axios.get(_this.get_list_url).then( function (response) {
                         var data = response.data;
                         _this.comments_total = data.total;
+                        _this.comments_limit = data.per_page;
                         _this.comments = data.data;
                         _this.next_page_url = data.next_page_url;
                         _this.prev_page_url = data.prev_page_url;
                         _this.updating = false;
+                        if(_this.comments_total < _this.comments_limit) _this.comments_line = _this.comments_total
+                        else _this.comments_line = _this.comments_limit
                     });
                 },
                 get_prev: function () {
