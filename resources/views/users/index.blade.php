@@ -4,8 +4,10 @@
 	<div class="mdui-container mdui-m-t-5">
 		@if (count($users)) 
 			@foreach($users as $user)
-				<img src="{{ $user->newavatar }}" />
+				<div class="mdui-float-left">
+					<a href="{{ route('users.show', $user->id)}}"><img src="{{ $user->avatar }}" /></a>
+				</div>
 			@endforeach
 		@endif
 	</div>
-@endsection('content')
+@stop

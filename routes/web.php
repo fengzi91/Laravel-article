@@ -17,10 +17,11 @@ Auth::routes();
 
 Route::resource('users', 'UsersController', ['only' => ['index', 'show', 'update', 'edit']]);
 
-Route::get('users/editavatar/{user}', 'UsersController@editAvatar')->name('users.editavatar');
-Route::get('users/avatar/{user}', 'UsersController@generator')->name('users.avatar');
-Route::post('users/editavatar/{user}', 'UsersController@saveAvatar')->name('users.editavatar');
-Route::get('users/follows/{user}', 'UsersController@follow')->name('users.follows');
+Route::get('/users/editavatar/{user}', 'UsersController@editAvatar')->name('users.editavatar');
+Route::get('/users/avatar/{user}', 'UsersController@generator')->name('users.avatar');
+Route::post('/users/editavatar/{user}', 'UsersController@saveAvatar')->name('users.editavatar');
+Route::get('/users/{user}/followings', 'UsersController@followings')->name('users.followings');
+Route::get('/users/{user}/followers', 'UsersController@followers')->name('users.followers');
 
 Route::resource('topics', 'TopicsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
 // 删除话题的标签

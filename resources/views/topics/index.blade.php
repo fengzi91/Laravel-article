@@ -5,7 +5,7 @@
 @section('content')
 <div class="mdui-container">
 <div class="mdui-row mdui-m-t-5">
-    <div class="">
+    <div class="mdui-col-md-8 mdui-col-offset-md-2">
         <div class="mdui-clearfix">
             <div class="mdui-float-left mdui-p-l-2">
                 <div class="mdui-typo-headline">内容列表</div>
@@ -18,10 +18,12 @@
     </div>
 </div>
 <div class="mdui-row">
-    <div class="mdui-col-md-6 mdui-col-offset-md-3">
+    <div class="mdui-col-md-8 mdui-col-offset-md-2">
     @include('topics._topic_list', ['topics' => $topics])
-    <div class="g-pagination">{!! $topics->appends(Request::except('page'))->render() !!}</div>
     </div>
+</div>
+<div class="mdui-row">
+    <div class="g-pagination">{!! $topics->appends(Request::except('page'))->render() !!}</div>
 </div>
 </div>
 @endsection

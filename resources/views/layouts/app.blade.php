@@ -16,7 +16,7 @@
 </head>
 
 <body class="mdui-theme-primary-blue mdui-theme-accent-deep-orange">
-    <div class="{{ route_class() }}-page" id="app">
+    <div class="{{ route_class() }}-page mdui-clearfix" id="app">
 
         @include('layouts._header')
 

@@ -10,6 +10,8 @@ use Auth;
 use App\Handlers\ImageUploadHandler;
 use App\Models\Tag;
 use Markdown;
+use App\Handlers\TextHandler;
+
 class TopicsController extends Controller
 {
     public function __construct()
@@ -19,8 +21,7 @@ class TopicsController extends Controller
 
 	public function index(Request $request, Topic $topic)
 	{
-		//dd($topic->test());
-        $topics = Topic::with(['user', 'tags'])->withOrder($request->order)->paginate(10);
+		$topics = Topic::with(['user', 'tags'])->withOrder($request->order)->paginate(10);
 		return view('topics.index', compact('topics'));
 	}
 

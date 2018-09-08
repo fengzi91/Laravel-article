@@ -15,6 +15,7 @@
             @else
             <div class="mdui-float-right mdui-valign g-user-header-btn">
                 <a href="{{ route('notifications.index') }}" class="mdui-btn mdui-m-r-1">新消息({{ Auth::user()->notification_count }})</a>
+                <a href="{{ route('topics.create') }}" class="mdui-btn mdui-btn-icon mdui-text-color-theme-accent mdui-ripple mdui-m-r-1"><i class="mdui-icon material-icons">add</i></a>
                 <a href="javascript:void(0);" class="user-avatar mdui-ripple" mdui-menu="{target: '#example-attr', position: 'bottom', align: 'right', covered: false}">
                     <img src="{{ Auth::user()->newavatar }}" class="mdui-img-circle" width="40" height="40" />
                 </a>

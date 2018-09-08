@@ -490,7 +490,6 @@ body {
   height: 32px;
   line-height: 32px;
   padding: 0 8px;
-  min-width: 64px;
 }
 
 .g-user-tab-link a.active {
@@ -557,6 +556,9 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
 }
 
 .g-pagination ul.pagination li {
@@ -618,6 +620,29 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 100%;
+}
+
+.g-users-list li {
+  float: left;
+  list-style: none;
+  margin: 8px;
+}
+
+.g-users-list li img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: block;
+}
+
+.g-users-list li a {
+  display: block;
+  margin: 0 8px;
+  text-align: center;
+  max-width: 104px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 消息提示 */

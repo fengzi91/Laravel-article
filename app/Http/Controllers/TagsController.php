@@ -22,9 +22,9 @@ class TagsController extends Controller
 
     public function show(Tag $tag)
     {
-        //$topics = $tag->topics();
+        $topics = $tag->topics()->paginate();
 
-        return view('tags.show', compact('tag'));
+        return view('tags.show', compact('tag','topics'));
     }
 
 	public function create(Tag $tag)
