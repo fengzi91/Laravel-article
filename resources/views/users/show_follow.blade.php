@@ -2,16 +2,13 @@
 @section('title', $title)
 
 @section('content')
-<div class="mdui-col-offset-md-2 mdui-col-md-8">
-  <h1>{{ $title }}</h1>
-  <ul class="g-users-list mdui-clearfix">
+@include('users._header')
+<div class="mdui-col-offset-md-2 mdui-col-md-8 mdui-m-t-5">
+  <div class="g-users-list">
     @foreach ($users as $user)
-      <li class="mdui-typo">
-        <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="gravatar"/>
-        <a href="{{ route('users.show', $user->id )}}" class="username">{{ $user->name }}</a>
-      </li>
+      @include('users._show_info', ['user' => $user])
     @endforeach
-  </ul>
+  </div>
   <div class="g-pagination">
   {!! $users->render() !!}
   </div>

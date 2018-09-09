@@ -142,14 +142,14 @@ body {
     min-height: 40vh;
 
 }
-.g-user-banner-info, .g-user-banner-avatar {
+.g-user-banner-info, .g-user-banner-avatar, .g-user-banner-button {
     -webkit-box-orient: horizontal!important; 
     -ms-flex-direction: row!important;
     flex-direction: row!important;
     margin: 24px;
     color: #fff;
 }
-.g-user-banner-info{
+.g-user-banner-info, .g-user-banner-button{
     margin:24px 0;
     display: flex;
     flex-direction: column;
@@ -165,26 +165,71 @@ body {
     }
 }
 .g-users-list {
-    li{
-        float: left;
-        list-style: none;
-        margin: 8px;
+    display:flex;
+    justify-content:center;
+    flex-wrap: wrap;
+    .g-user-micro-info {
+        margin: 0 16px 16px 16px;
+    }
+}
+/* 迷你用户信息卡片 */
+.g-user-micro-info {
+    width: 280px;
+    padding: 8px 16px;
+    text-align:center;
+    .avatar{
         img{
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            display:block;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
         }
-        a {
-            display:block;
-            margin:0 8px;
-            text-align: center;
-            max-width: 104px;
-            overflow: hidden;
-            text-overflow:ellipsis;
-            white-space: nowrap;
+    }
+    .name {
+        padding: 8px;
+        a{
+            color: #ff6e40;
+            text-decoration: none;
         }
-
+    }
+    .info {
+        display:flex;
+        justify-content: center;
+        .count {
+            padding: 0 16px;
+            margin: 0;
+            border-right:1px solid rgba(0,0,0,0.54);
+            .text {
+                color: rgba(0,0,0,0.54);
+            }
+            .total {
+                font-weight: 600;
+                padding-bottom: 4px;
+            }
+            &:last-child{
+                border:none;
+            }
+        }
+    }
+    .button {
+        margin-top:16px;
+        .mdui-btn {
+            color:#4285f4 !important;
+            border: 1px solid #4285f4 !important;
+            background-color: #fff !important;
+            min-width: 124px;
+            line-height: 34px;
+            &:hover {
+                background-color: rgba(0,0,0,0.05) !important;
+            }
+        }
+    }
+}
+.g-user-banner-button {
+    margin-left: 16px;
+    .mdui-btn {
+        min-width: 124px;
+        line-height: 34px;
+        color: #fff !important;
     }
 }
 /* 消息提示 */

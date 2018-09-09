@@ -23,6 +23,10 @@ Route::post('/users/editavatar/{user}', 'UsersController@saveAvatar')->name('use
 Route::get('/users/{user}/followings', 'UsersController@followings')->name('users.followings');
 Route::get('/users/{user}/followers', 'UsersController@followers')->name('users.followers');
 
+// 关注
+Route::post('/users/followers/{user}', 'FollowersController@store')->name('followers.store');
+Route::delete('/users/followers/{user}', 'FollowersController@destroy')->name('followers.destroy');
+
 Route::resource('topics', 'TopicsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
 // 删除话题的标签
 Route::post('topics/deletetag/{topic}', 'TopicsController@deleteTag')->name('topics.deletetag');

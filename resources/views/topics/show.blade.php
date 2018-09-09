@@ -6,7 +6,7 @@
     <div class="mdui-col-md-8 mdui-col-offset-md-2">
         <div class="mdui-card">  
             <div class="mdui-card-primary">
-                <div class="mdui-card-primary-title">{{ $topic->title }} @{{title + id}}</div>
+                <div class="mdui-card-primary-title">{{ $topic->title }}</div>
             </div>
             <div class="mdui-card-content markdown-body mdui-typo">
                 {!! Markdown::html($topic->body) !!}
