@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Models\User;
-use App\jobs\CreateUserAvatar;
+use App\Jobs\CreateUserAvatar;
 
 use Illuminate\Support\Facades\Log;
 // creating, created, updating, updated, saving,
