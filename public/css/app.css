@@ -745,3 +745,20 @@ ul.list-add .list-leave-to {
           transform: translateY(88px);
 }
 
+.list-complete-item {
+  -webkit-transition: all 1s;
+  transition: all 1s;
+  display: inline-block;
+}
+
+.list-complete-enter,
+.list-complete-leave-to {
+  opacity: 0;
+  -webkit-transform: translateY(30px);
+          transform: translateY(30px);
+}
+
+.list-complete-leave-active {
+  position: absolute;
+}
+

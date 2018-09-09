@@ -1,13 +1,11 @@
 <?php
 
 use Faker\Generator as Faker;
-use App\Handlers\TextHandler;
 $factory->define(App\Models\Reply::class, function (Faker $faker) {
     
     $time = $faker->dateTimeThisMonth();
-    $cn = new TextHandler;
     return [
-        'content' => $cn->juzi(),
+        'content' => $faker->text(50),
         'created_at' => $time,
         'updated_at' => $time,
     ];

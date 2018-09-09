@@ -1,7 +1,6 @@
 <?php
 
 use Faker\Generator as Faker;
-use App\Handlers\TextHandler;
 
 $factory->define(App\Models\Topic::class, function (Faker $faker) {
     $sentence = $faker->sentence();
@@ -10,11 +9,10 @@ $factory->define(App\Models\Topic::class, function (Faker $faker) {
     $updated_at = $faker->dateTimeThisMonth();
     // 传参为生成最大时间不超过，创建时间永远比更改时间要早
     $created_at = $faker->dateTimeThisMonth($updated_at);
-    $cn = new TextHandler;
     return [
-        'title' => $cn->juzi(),
-        'body' => $cn->text(),
-        'excerpt' => $cn->text(100),
+        'title' => $faker->sentence(),
+        'body' => $faker->text(1000),
+        'excerpt' => $sentence,
         'up_count' => $faker->numberBetween(100,1000),
         'view_count' => $faker->numberBetween(0,10000),
         'created_at' => $created_at,

@@ -3,7 +3,7 @@
 @section('content')
 <div class="mdui-container">
 <div class="mdui-row mdui-m-t-5">
-    <div class="mdui-col-md-8">
+    <div class="mdui-col-md-8 mdui-col-offset-md-2">
         <div class="mdui-card">  
             <div class="mdui-card-primary">
                 <div class="mdui-card-primary-title">{{ $topic->title }} @{{title + id}}</div>
@@ -46,7 +46,7 @@
             </div>
         </div>
     </div>
-    <div class="mdui-col-md-4">
+    {{--<div class="mdui-col-md-4">
         <div class="mdui-card">
             <div class="mdui-card-primary">
                 <div class="mdui-card-primary-title">相关人物</div>
@@ -86,7 +86,7 @@
                 </ul>
             </div>
         </div>
-    </div>
+    </div>--}}
 </div>
 </div>
 @endsection

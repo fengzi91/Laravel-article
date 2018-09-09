@@ -16,7 +16,7 @@ class TopicsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['index', 'show']]);
+        $this->middleware('auth', ['except' => ['index', 'show', 'getComments']]);
     }
 
 	public function index(Request $request, Topic $topic)
@@ -87,7 +87,9 @@ class TopicsController extends Controller
     // 获取评论
     public function getComments(Topic $topic, Request $request) 
     {
-        return $topic->replies()->with('user')->recent()->paginate(5);
+        $replies = $topic->replies()->with('user')->recent()->paginate(5);
+        return response()
+            ->json($replies);
     }
   /**
    * 图片上传

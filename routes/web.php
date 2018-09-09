@@ -27,8 +27,10 @@ Route::resource('topics', 'TopicsController', ['only' => ['index', 'show', 'crea
 // 删除话题的标签
 Route::post('topics/deletetag/{topic}', 'TopicsController@deleteTag')->name('topics.deletetag');
 // 获取话题下的回复
+
 Route::get('topics/comments/{topic}', 'TopicsController@getComments')->name('topics.getcomments');
-Route::resource('tags', 'TagsController', ['only' => ['index', 'show', 'create', 'store', 'update', 'edit', 'destroy']]);
+
+Route::resource('tags', 'TagsController', ['only' => [ 'show' ]]);
 
 // 图片上传地址
 
