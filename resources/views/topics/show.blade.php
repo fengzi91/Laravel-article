@@ -30,7 +30,7 @@
                 @endif
             </div>
             <div class="mdui-card-actions">
-                <a href="{{ route('topics.edit', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
+                <a href="{{ route('topic.edit', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
                 <button class="mdui-btn mdui-ripple">举报</button>
                 <button class="mdui-btn mdui-btn-icon mdui-float-right"><i class="mdui-icon material-icons">expand_more</i></button>
             </div>

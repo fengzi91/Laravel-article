@@ -158,10 +158,10 @@
         </div>
         <div class="mdui-divider mdui-m-t-1" style="height:2px;"></div>
         @if($topic->id)
-            <form id="topics-{{$topic->id}}" action="{{ route('topics.update', $topic->id) }}" method="POST" accept-charset="UTF-8" @submit="submitForm">
+            <form id="topics-{{$topic->id}}" action="{{ route('topics_edit.update', $topic->id) }}" method="POST" accept-charset="UTF-8" @submit="submitForm">
                 <input type="hidden" name="_method" value="PUT">
         @else
-            <form id="topics-{{$topic->id}}" action="{{ route('topics.store') }}" method="POST" accept-charset="UTF-8" @submit="submitForm">
+            <form id="topics" action="{{ route('topics_edit.store') }}" method="POST" accept-charset="UTF-8" @submit="submitForm">
         @endif
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="mdui-textfield mdui-textfield-floating-label {{ $errors->has('title') ? ' mdui-textfield-invalid' : '' }}">

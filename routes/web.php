@@ -36,6 +36,9 @@ Route::get('topics/comments/{topic}', 'TopicsController@getComments')->name('top
 
 Route::resource('tags', 'TagsController', ['only' => [ 'show' ]]);
 
+Route::get('topic_edit/{topic}', 'TopicEditController@edit')->name('topic.edit');
+
+Route::resource('topic_edit', 'TopicEditController', ['only' => [ 'show', 'store', 'update' ]]);
 // 图片上传地址
 
 Route::post('upload_image', 'TopicsController@uploadImage')->name('topics.upload_image');

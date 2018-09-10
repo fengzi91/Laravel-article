@@ -37,7 +37,6 @@ class TopicsController extends Controller
 
 	public function store(TopicRequest $request, Topic $topic)
 	{
-        //if($request->get('tag'))
         $tagIds = [];
         if ($request->get('tag')) {
             $tagIds = $topic->autoTag($request->get('tag'));
@@ -57,6 +56,10 @@ class TopicsController extends Controller
 
 	public function update(TopicRequest $request, Topic $topic)
 	{
+        // 对于内容的修改，统一纳入历史记录里
+
+        $user = Auth::user();
+
         $this->authorize('update', $topic);
 
 		$topic->update($request->all());
