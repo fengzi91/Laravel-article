@@ -22,7 +22,7 @@ class ImageUploadHandler
 
         // 需要创建目录
         if( ! is_dir(dirname($pathinfo))) {
-            if( ! mkdir(dirname($pathinfo).'/', 0777, TRUE) )
+            if( ! mkdir(dirname($pathinfo).'/', 0775, TRUE) )
             {
                 return false;
             }
