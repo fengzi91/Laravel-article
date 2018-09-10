@@ -1,4 +1,8 @@
 {
+    "/js/vendor.js": "/js/vendor.js",
+    "/js/vue.js": "/js/vue.js",
     "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css"
+    "/css/app.css": "/css/app.css",
+    "/js/manifest.js": "/js/manifest.js",
+    "/css/material.css": "/css/material.css?id=2301c0da3b701bde2111"
 }
