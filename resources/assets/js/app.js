@@ -7,7 +7,7 @@
 
 require('./bootstrap');
 
-// require('./mdui.min');
+require('./mdui.min');
 
 
 
