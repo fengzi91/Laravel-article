@@ -14,5 +14,6 @@ mix.js('resources/assets/js/app.js', 'public/js')
    .js('resources/assets/js/vue.js', 'public/js/')
    .sass('resources/assets/sass/app.scss', 'public/css')
    .styles(['node_modules/vue-material/dist/vue-material.min.css', 'node_modules/vue-material/dist/theme/default.css'], 'public/css/material.css')
+   .copy('resources/assets/sass/animate.min.css', 'public/css/animate.min.css')
    .extract(['vue','axios'])
    .version();

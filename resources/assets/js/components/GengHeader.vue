@@ -1,40 +1,67 @@
 <template>
 	<div>
-		<md-toolbar class="md-transparent">
-      		<md-button class="md-icon-button" @click="menuVisible = !menuVisible">
-          		<md-icon>menu</md-icon>
-        	</md-button>
-      		<a href="/" class="appname"><h2 class="md-title">{{sitename}}</h2></a>
-    	</md-toolbar>
-    	<md-app-drawer :md-active.sync="menuVisible">
-        	<md-toolbar class="md-transparent" md-elevation="0">Navigation</md-toolbar>
+    <md-toolbar class="md-primary topbar" md-mode="flexible">
+      <md-button class="md-icon-button" @click="showNavigation = true">
+        <md-icon>menu</md-icon>
+      </md-button>
+      <span class="md-title" style="flex: 1">{{appData.siteName}}</span>
+      <md-menu md-size="medium" style="margin-right: 24px;"md-align-trigger v-if="appData.signIn" >
+        <md-avatar md-menu-trigger style="cursor: pointer;">
+          <img :src="appData.user.avatar" />
+        </md-avatar>
+        <md-menu-content>
+          <md-menu-item :href="'/users/' + appData.user.id">个人中心</md-menu-item>
+          <md-menu-item :href="'/users/' + appData.user.id + '/edit'">编辑资料</md-menu-item>
+          <md-menu-item @click="$emit('logout')">退出</md-menu-item>
+        </md-menu-content>
+      </md-menu>
+    </md-toolbar>
 
-        	<md-list>
-          		<md-list-item>
-            		<md-icon>move_to_inbox</md-icon>
-            		<span class="md-list-item-text">Inbox</span>
-          		</md-list-item>
+    <md-drawer :md-active.sync="showNavigation">
+      <md-toolbar class="md-transparent" md-elevation="0">
+        <span class="md-title">{{appData.siteName}}</span>
+      </md-toolbar>
 
-          		<md-list-item>
-            		<md-icon>send</md-icon>
-            		<span class="md-list-item-text">Sent Mail</span>
-          		</md-list-item>
-        </md-list>
-      	</md-app-drawer>
-	</div>
+      <md-list>
+        <md-list-item href="/">
+          <md-icon>move_to_inbox</md-icon>
+          <span class="md-list-item-text">首页</span>
+        </md-list-item>
+
+        <md-list-item href="/topics/">
+          <md-icon>send</md-icon>
+          <span class="md-list-item-text">梗列表</span>
+        </md-list-item>
+      </md-list>
+    </md-drawer>
+  </div>
 </template>
 <script>
 	export default {
 		name: 'gengHeader',
-		  data: () => ({
-    		menuVisible: false,
-    		sitename: window.App.siteName
-  		}),
-		computed: {
-    		siteName() {
-        	return window.App.siteName;
-    	}
-  }
+    props: ['appData'],
+    data: () => ({
+      showNavigation: false,
+      username: '',
+    }),
+    watch: {
+　　　　appData: {
+　　　　　　handler(newValue, oldValue) {
+　　　　　　 if (newValue.user.name !== null ) {
+              this.username = newValue.user.name
+          }
+　　　　　},
+　　　　　　deep: true
+　　　　}
+    },
+    created () {
+      if (this.appData.user !== null ) {
+        this.username = this.appData.user.name
+      }
+    },
+    methods: {
+
+    }
 	}
 </script>
 
@@ -45,14 +72,12 @@
 			text-decoration:none;
 		}
 	}
-	.md-app {
-    	max-height: 400px;
-    	border: 1px solid rgba(#000, .12);
-  	}
-
-   // Demo purposes only
-  	.md-drawer {
-    	width: 230px;
-    	max-width: calc(100vw - 125px);
-  	}
+  .md-drawer {
+    width: 230px;
+    max-width: calc(100vw - 125px);
+  }
+  .topbar {
+    position: fixed;
+    top: 0;
+  }
 </style>
