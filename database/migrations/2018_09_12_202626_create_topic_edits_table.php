@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatTopicsEditTable extends Migration
+class CreatTopicEditsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatTopicsEditTable extends Migration
      */
     public function up()
     {
-        Schema::create('topics_edit', function (Blueprint $table) {
+        Schema::create('topic_edits', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->index();
             $table->integer('topic_id')->index();
@@ -30,6 +30,6 @@ class CreatTopicsEditTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('topics_edit');
+        Schema::dropIfExists('topic_edits');
     }
 }

@@ -21,9 +21,16 @@ class TopicEditController extends Controller
     	// 显示一个用户的编辑
 
     }
-    public function store(TopicEditRequest $request) 
+    public function store(TopicEditRequest $request, Topic $topic, TopicEdit $topicedit) 
     {
-    	dd($request->all());
+    	$topic_id = $request->topic_id;
+        if($topic_info = $topic->find($topic_id)) {
+            $topicedit->fill($request->all());
+            $topicedit->topic_id = $request->topic_id;
+            $topicedit->user_id = Auth::id();
+            $topicedit->save();
+        }
+
     }
     public function update(TopicEditRequest $request)
     {

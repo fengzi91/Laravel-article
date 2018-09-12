@@ -49,16 +49,16 @@ import VueMaterial from 'vue-material';
 
 Vue.use(VueMaterial)
 
-import mavonEditor from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
+
 
 
 Vue.component('topic-create', require('./components/TopicCreate.vue'));
 Vue.component('user-login', require('./components/UserLogin.vue'));
 Vue.component('geng-header', require('./components/GengHeader.vue'));
 
-Vue.use(mavonEditor)
-
+Vue.component('geng-flash', require('./components/Flash.vue'));
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    methods: {
+    }
 });

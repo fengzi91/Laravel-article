@@ -66,6 +66,11 @@ class User extends Authenticatable
         return $this->hasMany(Topic::class);
     }
 
+    // 用户与编辑过的文章的关联
+    public function topic_edits()
+    {
+        return $this->hasMany(TopicEdit::class);
+    }
     // 获取用户头像
     public function getnewAvatarAttribute()
     {

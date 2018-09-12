@@ -37,6 +37,18 @@
         </div>
         <div class="mdui-card mdui-m-t-4">
             <div class="mdui-card-primary">
+                <div class="mdui-card-primary-title">参与编辑的用户</div>
+            </div>
+            <div class="mdui-card-content mdui-p-t-0">
+                @if (count($topic->edits))
+                    @foreach($topic->edits as $edit)
+                        @include('user._show_info', ['user' => $edit])
+                    @endforeach
+                @endif
+            </div>
+        </div>
+        <div class="mdui-card mdui-m-t-4">
+            <div class="mdui-card-primary">
                 <div class="mdui-card-primary-title">评论(@{{comments_total}})</div>
             </div>
             <div class="mdui-card-content mdui-p-t-0">

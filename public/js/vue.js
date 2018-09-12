@@ -1,4 +1,41 @@
-webpackJsonp([1],{
+webpackJsonp([0],{
+
+/***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/components/Flash.vue":
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'SnackbarExample',
+  data: function data() {
+    return {
+      showSnackbar: false,
+      position: 'center',
+      duration: 4000,
+      isInfinity: false
+    };
+  },
+  methods: {
+    submit: function submit() {
+      this.showSnackbar = true;
+    }
+  }
+});
+
+/***/ }),
 
 /***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/components/GengHeader.vue":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -80,6 +117,89 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_mavon_editor__ = __webpack_require__("./node_modules/mavon-editor/dist/mavon-editor.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_mavon_editor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_mavon_editor__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_mavon_editor_dist_css_index_css__ = __webpack_require__("./node_modules/mavon-editor/dist/css/index.css");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_mavon_editor_dist_css_index_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_mavon_editor_dist_css_index_css__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -132,15 +252,40 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 
-Vue.component('geng-header', __webpack_require__("./resources/assets/js/components/GengHeader.vue"));
+
+
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'TopicCreate',
+  components: {
+    mavonEditor: __WEBPACK_IMPORTED_MODULE_0_mavon_editor__["mavonEditor"]
+  },
+  directives: {
+    focus: {
+      update: function update(el, binding) {
+        if (binding.value) {
+          el.focus();
+        }
+      }
+    }
+  },
   data: function data() {
     return {
       appData: [], // window.App,
       signIn: false, // window.APP.signIn,
       siteName: '', // window.App.siteName
-      topic: []
+      topic: [],
+      uploadImg: [],
+      message: [],
+      msg: {
+        show: false,
+        timeout: 3000,
+        info: '',
+        class: 'md-primary'
+      },
+      error: {
+        type: null
+      }
     };
   },
   created: function created() {
@@ -168,7 +313,22 @@ Vue.component('geng-header', __webpack_require__("./resources/assets/js/componen
       });
     },
     submitTopic: function submitTopic() {
-      console.log('提交更新');
+      console.log(this.topic);
+      if (!this.topic.reason) {
+        // 添加一个出错信息
+        this.msg.info = '请输入编辑理由';
+        this.msg.show = true;
+        this.msg.class = 'md-accent';
+        this.error.type = 'reason';
+        return;
+      }
+      if (!this.topic.topic_id) {
+        this.topic.topic_id = this.topic.id;
+        this.topic.id = null;
+      }
+      axios.post('/topic_edit', this.topic).then(function (res) {
+        console.log(res);
+      });
     },
     refresh_token: function refresh_token() {
       // 更新 laravel 的 crsf_token
@@ -178,6 +338,82 @@ Vue.component('geng-header', __webpack_require__("./resources/assets/js/componen
     },
     getTopicData: function getTopicData() {
       console.log(this.topicData);
+    },
+    $imgAdd: function $imgAdd(pos, $file) {
+      console.log('上传时的 md 信息');
+      console.log(this.$refs.md);
+      // 上传图片 
+      var formData = new FormData();
+      // 向 formData 对象中添加文件
+      formData.append('upload_file', $file);
+      var _this = this;
+      var key = this.showUploading(pos, $file);
+      this.uploadFile("upload_image", formData, function (res) {
+
+        var loaded = res.loaded,
+            total = res.total;
+        _this.uploadImg[key].isProgress = true;
+        _this.$nextTick(function () {
+          _this.uploadImg[key].amount = loaded / total * 100;
+        });
+      }).then(function (response) {
+        if (response.data.success) {
+          var imgUrl = response.data.file_path;
+          _this.uploadImg[key].isProgress = false;
+          _this.uploadImg[key].imgUrl = imgUrl;
+          _this.$refs.md.$img2Url(pos, imgUrl);
+          _this.$refs.md.$refs.toolbar_left.$imgUpdateByFilename($file, imgUrl);
+        } else {
+          // 上传失败的提示
+          _this.uploading = false;
+          _this.upload_error_message = response.data.msg;
+        }
+      });
+    },
+    upImgDel: function upImgDel(pos) {
+      console.log(pos);
+      this.uploadImg.splice(pos, 1);
+    },
+    upImgDelbtn: function upImgDelbtn(pos, imgUrl) {
+      var fileInfo = this.uploadImg[pos].file;
+      this.$refs.md.$refs.toolbar_left.$imgDelByFilename(fileInfo);
+    },
+    showUploading: function showUploading(pos, $file) {
+      // 添加一个上传消息
+
+      var uploadInfo = {
+        file: $file,
+        show: true,
+        amount: 0,
+        isProgress: true,
+        imgUrl: pos
+      };
+      this.uploadImg.push(uploadInfo);
+      return this.uploadImg.length - 1;
+    },
+
+    uploadFile: function uploadFile(url, data, upProgress) {
+      // 执行这个方法时，显示上传进度条
+      this.uploading = true;
+      var _this = this;
+      var config = {
+        url: url,
+        baseURL: '/',
+        transformResponse: [function (data1) {
+          var data = data1;
+          if (typeof data1 == "string") {
+            data = JSON.parse(data1);
+          }
+          return data;
+        }],
+        headers: { 'Content-Type': "multipart/form-data" },
+        withCredentials: true,
+        responseType: 'json', //default
+        onUploadProgress: function onUploadProgress(e) {
+          upProgress(e);
+        }
+      };
+      return axios.post(url, data, config);
     }
   }
 });
@@ -324,7 +560,7 @@ exports = module.exports = __webpack_require__("./node_modules/css-loader/lib/cs
 
 
 // module
-exports.push([module.i, "\n.page-container[data-v-11297124] {\n  min-height: 100vh;\n  padding-top: 64px;\n}\n.g-title-line[data-v-11297124] {\n  border-bottom: 2px solid rgba(231, 231, 231, 0.7);\n}\n.up-down-enter[data-v-11297124], .up-down-leave-to[data-v-11297124] {\n  -webkit-transform: translateY(-200%);\n          transform: translateY(-200%);\n}\n.up-down-enter-active[data-v-11297124] {\n  -webkit-transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);\n  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);\n}\n.up-down-enter-to[data-v-11297124], .up-down-leave[data-v-11297124] {\n  -webkit-transform: translateY(0);\n          transform: translateY(0);\n}\n.up-down-leave-active[data-v-11297124] {\n  -webkit-transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);\n  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);\n}\n", ""]);
+exports.push([module.i, "\n.page-container[data-v-11297124] {\n  min-height: 100vh;\n  padding-top: 64px;\n}\n.edit[data-v-11297124] {\n  margin: 32px auto;\n}\n.g-title-line[data-v-11297124] {\n  border-bottom: 2px solid rgba(231, 231, 231, 0.7);\n}\n.up-info[data-v-11297124] {\n  position: fixed;\n  bottom: 24px;\n  left: 24px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -ms-flex-line-pack: end;\n      align-content: flex-end;\n}\n.v-note-wrapper[data-v-11297124] {\n  z-index: 1;\n}\n.upload-info.md-snackbar[data-v-11297124] {\n  max-height: 176px;\n  max-width: 12vw;\n  position: static;\n  margin-top: 24px;\n  background-color: rgba(0, 0, 0, 0);\n}\n.upload-info.md-snackbar .pre-img[data-v-11297124] {\n    margin-right: 8px;\n}\n.upload-info.md-snackbar .pre-img img[data-v-11297124] {\n      max-width: 160px;\n      max-height: 120px;\n}\n.upload-info.md-snackbar .file-info[data-v-11297124] {\n    color: rgba(0, 0, 0, 0.87);\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.upload-info .upload-info-content[data-v-11297124] {\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n}\n.upload-info .progress-content[data-v-11297124] {\n  margin-top: 8px;\n}\n.upload-info .buttons[data-v-11297124] {\n  position: absolute;\n  top: 0px;\n  right: -6px;\n}\n.up-down-enter[data-v-11297124], .up-down-leave-to[data-v-11297124] {\n  -webkit-transform: translateY(-200%);\n          transform: translateY(-200%);\n}\n.up-down-enter-active[data-v-11297124] {\n  -webkit-transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);\n  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);\n}\n.up-down-enter-to[data-v-11297124], .up-down-leave[data-v-11297124] {\n  -webkit-transform: translateY(0);\n          transform: translateY(0);\n}\n.up-down-leave-active[data-v-11297124] {\n  -webkit-transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);\n  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);\n}\n.md-snackbar.md-primary[data-v-11297124] {\n  background-color: var(--md-theme-default-primary, #448aff);\n}\n.md-snackbar.md-accent[data-v-11297124] {\n  background-color: var(--md-theme-light-accent, #ff5252);\n}\n", ""]);
 
 // exports
 
@@ -18206,6 +18442,71 @@ module.exports = function normalizeComponent (
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-03030049\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/components/Flash.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c(
+        "md-button",
+        { staticClass: "md-primary md-raised", on: { click: _vm.submit } },
+        [_vm._v("Open Snackbar")]
+      ),
+      _vm._v(" "),
+      _c(
+        "md-snackbar",
+        {
+          attrs: {
+            "md-position": _vm.position,
+            "md-duration": _vm.duration,
+            "md-active": _vm.showSnackbar,
+            "md-persistent": ""
+          },
+          on: {
+            "update:mdActive": function($event) {
+              _vm.showSnackbar = $event
+            }
+          }
+        },
+        [
+          _c("span", [_vm._v("Connection timeout. Showing limited messages!")]),
+          _vm._v(" "),
+          _c(
+            "md-button",
+            {
+              staticClass: "md-primary",
+              on: {
+                click: function($event) {
+                  _vm.showSnackbar = false
+                }
+              }
+            },
+            [_vm._v("Retry")]
+          )
+        ],
+        1
+      )
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-03030049", module.exports)
+  }
+}
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-0fb6b00a\",\"hasScoped\":true,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/components/GengHeader.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -18408,72 +18709,213 @@ var render = function() {
                 "div",
                 {
                   staticClass: "md-layout md-alignment-top-center edit-box",
-                  staticStyle: { "margin-top": "64px" }
+                  staticStyle: { margin: "64px auto" }
                 },
                 [
                   _c(
-                    "md-card",
+                    "div",
+                    {
+                      staticClass:
+                        "md-title g-title-line md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100"
+                    },
+                    [_vm._v(_vm._s(_vm.topic.title))]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      staticClass:
+                        "edit md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100"
+                    },
+                    [
+                      _c("mavon-editor", {
+                        ref: "md",
+                        attrs: { ishljs: false, boxShadow: true },
+                        on: { imgAdd: _vm.$imgAdd, imgDel: _vm.upImgDel },
+                        model: {
+                          value: _vm.topic.body,
+                          callback: function($$v) {
+                            _vm.$set(_vm.topic, "body", $$v)
+                          },
+                          expression: "topic.body"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
                     {
                       staticClass:
                         "md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100"
                     },
                     [
-                      _c("md-card-header", [
-                        _c("div", { staticClass: "md-title g-title-line" }, [
-                          _vm._v(_vm._s(_vm.topic.title))
-                        ])
-                      ]),
-                      _vm._v(" "),
                       _c(
-                        "md-card-content",
+                        "md-field",
+                        { class: { "md-invalid": _vm.error.type == "reason" } },
                         [
-                          _c("mavon-editor", {
-                            attrs: { ishljs: false, boxShadow: false },
+                          _c("label", [_vm._v("输入编辑理由")]),
+                          _vm._v(" "),
+                          _c("md-input", {
+                            directives: [
+                              {
+                                name: "focus",
+                                rawName: "v-focus",
+                                value: _vm.error.type == "reason",
+                                expression: "error.type == 'reason'"
+                              }
+                            ],
                             model: {
-                              value: _vm.topic.body,
+                              value: _vm.topic.reason,
                               callback: function($$v) {
-                                _vm.$set(_vm.topic, "body", $$v)
+                                _vm.$set(_vm.topic, "reason", $$v)
                               },
-                              expression: "topic.body"
+                              expression: "topic.reason"
                             }
                           }),
                           _vm._v(" "),
-                          _c(
-                            "md-field",
-                            [
-                              _c("label", [_vm._v("输入编辑理由")]),
-                              _vm._v(" "),
-                              _c("md-input")
-                            ],
-                            1
-                          )
+                          _c("span", { staticClass: "md-helper-text" }),
+                          _vm._v(" "),
+                          _c("span", { staticClass: "md-error" }, [
+                            _vm._v("必须填写编辑理由才可以提交")
+                          ])
                         ],
                         1
                       ),
                       _vm._v(" "),
                       _c(
-                        "md-card-actions",
-                        { attrs: { "md-alignment": "left" } },
-                        [
-                          _c(
-                            "md-button",
-                            {
-                              staticClass: "md-raised md-primary",
-                              on: { click: _vm.submitTopic }
-                            },
-                            [_vm._v("提交")]
-                          )
-                        ],
-                        1
+                        "md-button",
+                        {
+                          staticClass: "md-raised md-primary",
+                          on: { click: _vm.submitTopic }
+                        },
+                        [_vm._v("提交")]
                       )
                     ],
                     1
                   )
-                ],
-                1
+                ]
               )
         ],
         1
+      ),
+      _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "up-info" },
+        _vm._l(_vm.uploadImg, function(upload, index) {
+          return _c(
+            "div",
+            {
+              directives: [
+                {
+                  name: "show",
+                  rawName: "v-show.sync",
+                  value: upload.show,
+                  expression: "upload.show",
+                  modifiers: { sync: true }
+                }
+              ],
+              staticClass: "upload-info md-snackbar"
+            },
+            [
+              _c("div", { staticClass: "upload-info-content" }, [
+                _c(
+                  "div",
+                  { staticStyle: { display: "flex", "align-items": "center" } },
+                  [
+                    _c("div", { staticClass: "pre-img" }, [
+                      _c("img", { attrs: { src: upload.file.miniurl } })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "file-info" }, [
+                      _c("p", [_vm._v(_vm._s(upload.file._name))]),
+                      _vm._v(" "),
+                      _c("p", [
+                        _vm._v(_vm._s(upload.file.size / 1024) + " KB ")
+                      ])
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: upload.isProgress,
+                        expression: "upload.isProgress"
+                      }
+                    ],
+                    staticClass: "progress-content"
+                  },
+                  [
+                    _c("md-progress-bar", {
+                      attrs: {
+                        "md-mode": "determinate",
+                        "md-value": upload.amount
+                      }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  {
+                    directives: [
+                      {
+                        name: "show",
+                        rawName: "v-show",
+                        value: !upload.isProgress,
+                        expression: "! upload.isProgress"
+                      }
+                    ],
+                    staticClass: "buttons"
+                  },
+                  [
+                    _c(
+                      "md-button",
+                      {
+                        staticClass: "md-icon-button md-accent",
+                        on: {
+                          click: function($event) {
+                            _vm.upImgDelbtn(index, upload.file._name)
+                          }
+                        }
+                      },
+                      [_c("md-icon", [_vm._v("clear")])],
+                      1
+                    )
+                  ],
+                  1
+                )
+              ])
+            ]
+          )
+        })
+      ),
+      _vm._v(" "),
+      _c(
+        "md-snackbar",
+        {
+          class: _vm.msg.class,
+          attrs: {
+            "md-position": "left",
+            "md-duration": _vm.msg.timeout,
+            "md-active": _vm.msg.show,
+            "md-persistent": ""
+          },
+          on: {
+            "update:mdActive": function($event) {
+              _vm.$set(_vm.msg, "show", $event)
+            }
+          }
+        },
+        [_c("span", [_vm._v(_vm._s(_vm.msg.info))])]
       )
     ],
     1
@@ -49300,6 +49742,54 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./resources/assets/js/components/Flash.vue":
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__("./node_modules/vue-loader/lib/component-normalizer.js")
+/* script */
+var __vue_script__ = __webpack_require__("./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/components/Flash.vue")
+/* template */
+var __vue_template__ = __webpack_require__("./node_modules/vue-loader/lib/template-compiler/index.js?{\"id\":\"data-v-03030049\",\"hasScoped\":false,\"buble\":{\"transforms\":{}}}!./node_modules/vue-loader/lib/selector.js?type=template&index=0!./resources/assets/js/components/Flash.vue")
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/Flash.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-03030049", Component.options)
+  } else {
+    hotAPI.reload("data-v-03030049", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+
 /***/ "./resources/assets/js/components/GengHeader.vue":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -49463,10 +49953,6 @@ module.exports = Component.exports
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_material__ = __webpack_require__("./node_modules/vue-material/dist/vue-material.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_material___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue_material__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_mavon_editor__ = __webpack_require__("./node_modules/mavon-editor/dist/mavon-editor.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_mavon_editor___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_mavon_editor__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_mavon_editor_dist_css_index_css__ = __webpack_require__("./node_modules/mavon-editor/dist/css/index.css");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_mavon_editor_dist_css_index_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_mavon_editor_dist_css_index_css__);
 
 window._ = __webpack_require__("./node_modules/lodash/lodash.js");
 
@@ -49518,17 +50004,14 @@ window.Vue = __webpack_require__("./node_modules/vue/dist/vue.common.js");
 
 Vue.use(__WEBPACK_IMPORTED_MODULE_0_vue_material___default.a);
 
-
-
-
 Vue.component('topic-create', __webpack_require__("./resources/assets/js/components/TopicCreate.vue"));
 Vue.component('user-login', __webpack_require__("./resources/assets/js/components/UserLogin.vue"));
 Vue.component('geng-header', __webpack_require__("./resources/assets/js/components/GengHeader.vue"));
 
-Vue.use(__WEBPACK_IMPORTED_MODULE_1_mavon_editor___default.a);
-
+Vue.component('geng-flash', __webpack_require__("./resources/assets/js/components/Flash.vue"));
 var app = new Vue({
-    el: '#app'
+    el: '#app',
+    methods: {}
 });
 
 /***/ }),
