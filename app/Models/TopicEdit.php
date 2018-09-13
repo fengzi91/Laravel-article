@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class TopicEdit extends Model
 {
-    protected $table = 'topics_edit';
 
     protected $fillable = ['reason', 'body'];
 

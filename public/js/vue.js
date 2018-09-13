@@ -80,10 +80,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'gengHeader',
-  props: ['appData'],
+  props: ['appData', 'headerInfo'],
   data: function data() {
     return {
       showNavigation: false,
@@ -251,6 +254,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -277,14 +286,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       topic: [],
       uploadImg: [],
       message: [],
+      initleftbtn: 'back',
       msg: {
         show: false,
         timeout: 3000,
         info: '',
         class: 'md-primary'
       },
+      submit: {
+        text: '提交',
+        status: false
+      },
       error: {
         type: null
+      },
+      pageType: 'edit',
+      headerInfo: {
+        leftbtn: 'back'
       }
     };
   },
@@ -312,6 +330,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         _this.appData.user = [];
       });
     },
+    $back: function $back() {
+      if (this.pageType == 'preview') {
+        this.pageType = 'edit';
+        this.headerInfo.leftbtn = this.initleftbtn;
+        this.msg.show = false;
+      } else {
+        window.history.go(-1);
+      }
+    },
     submitTopic: function submitTopic() {
       console.log(this.topic);
       if (!this.topic.reason) {
@@ -326,8 +353,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         this.topic.topic_id = this.topic.id;
         this.topic.id = null;
       }
+      var _this = this;
+      this.submit = {
+        text: '正在提交...',
+        status: true
+      };
       axios.post('/topic_edit', this.topic).then(function (res) {
-        console.log(res);
+        if (res.status === 200) {
+          _this.msg.info = '您的编辑已经提交，需要审核后才会显示。';
+          _this.msg.show = true;
+          _this.msg.class = 'md-primary';
+          _this.msg.timeout = Infinity;
+          _this.error.type = null;
+          _this.pageType = 'preview';
+          _this.submit = {
+            text: '提交',
+            status: false
+          };
+          _this.headerInfo.leftbtn = 'back';
+          return;
+        }
       });
     },
     refresh_token: function refresh_token() {
@@ -18521,19 +18566,33 @@ var render = function() {
         "md-toolbar",
         { staticClass: "md-primary topbar", attrs: { "md-mode": "flexible" } },
         [
-          _c(
-            "md-button",
-            {
-              staticClass: "md-icon-button",
-              on: {
-                click: function($event) {
-                  _vm.showNavigation = true
-                }
-              }
-            },
-            [_c("md-icon", [_vm._v("menu")])],
-            1
-          ),
+          _vm.headerInfo.leftbtn == "menu"
+            ? _c(
+                "md-button",
+                {
+                  staticClass: "md-icon-button",
+                  on: {
+                    click: function($event) {
+                      _vm.showNavigation = true
+                    }
+                  }
+                },
+                [_c("md-icon", [_vm._v("menu")])],
+                1
+              )
+            : _c(
+                "md-button",
+                {
+                  staticClass: "md-icon-button",
+                  on: {
+                    click: function($event) {
+                      _vm.$emit("back")
+                    }
+                  }
+                },
+                [_c("md-icon", [_vm._v("arrow_back")])],
+                1
+              ),
           _vm._v(" "),
           _c("span", { staticClass: "md-title", staticStyle: { flex: "1" } }, [
             _vm._v(_vm._s(_vm.appData.siteName))
@@ -18680,8 +18739,8 @@ var render = function() {
     { staticClass: "page-container" },
     [
       _c("geng-header", {
-        attrs: { appData: _vm.appData },
-        on: { logout: _vm.logout }
+        attrs: { appData: _vm.appData, headerInfo: _vm.headerInfo },
+        on: { logout: _vm.logout, back: _vm.$back }
       }),
       _vm._v(" "),
       _c(
@@ -18705,7 +18764,10 @@ var render = function() {
                 attrs: { appData: _vm.appData },
                 on: { userLogin: _vm.userLogin }
               })
-            : _c(
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.signIn && _vm.pageType == "edit"
+            ? _c(
                 "div",
                 {
                   staticClass: "md-layout md-alignment-top-center edit-box",
@@ -18788,15 +18850,48 @@ var render = function() {
                         "md-button",
                         {
                           staticClass: "md-raised md-primary",
+                          attrs: { disabled: _vm.submit.status },
                           on: { click: _vm.submitTopic }
                         },
-                        [_vm._v("提交")]
+                        [_vm._v(_vm._s(_vm.submit.text))]
                       )
                     ],
                     1
                   )
                 ]
               )
+            : _vm._e(),
+          _vm._v(" "),
+          _vm.signIn && _vm.pageType == "preview"
+            ? _c(
+                "div",
+                {
+                  staticClass: "md-layout md-alignment-top-center edit-box",
+                  staticStyle: { margin: "64px auto" }
+                },
+                [
+                  _c("div", { staticClass: "md-display-2" }, [
+                    _vm._v(_vm._s(_vm.topic.title))
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "md-content",
+                    {
+                      staticClass:
+                        "md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100"
+                    },
+                    [
+                      _vm._v(
+                        "\n            " +
+                          _vm._s(_vm.topic.body) +
+                          "\n          "
+                      )
+                    ]
+                  )
+                ],
+                1
+              )
+            : _vm._e()
         ],
         1
       ),
@@ -50009,6 +50104,7 @@ Vue.component('user-login', __webpack_require__("./resources/assets/js/component
 Vue.component('geng-header', __webpack_require__("./resources/assets/js/components/GengHeader.vue"));
 
 Vue.component('geng-flash', __webpack_require__("./resources/assets/js/components/Flash.vue"));
+
 var app = new Vue({
     el: '#app',
     methods: {}

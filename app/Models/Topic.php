@@ -21,6 +21,12 @@ class Topic extends Model
     {
         return $this->belongsToMany(User::Class, 'topic_edits');
     }
+
+    // 用户是否是参与编辑者
+    public function isEdits($user_id)
+    {   //$user 为登录的用户
+        return $this->edits()->where('user_id', $user_id)->first();
+    }
     // 定义话题与标签的关联
     public function tags()
     {

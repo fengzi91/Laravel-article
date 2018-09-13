@@ -1,9 +1,9 @@
 <template>
   <div class="page-container">
-      <geng-header v-bind:appData="appData" v-on:logout="logout"></geng-header>
+      <geng-header v-bind:appData="appData" v-bind:headerInfo="headerInfo" v-on:logout="logout" v-on:back="$back"></geng-header>
         <transition appear name="up-down" appear-class="dropdown-appear-class" appear-to-class="animated slideInDown" leave-to-class="animated slideOutUp" enter-active-class="animated slideInDown" leave-active-class="animated bounceOutRight" mode="out-in">
           <user-login class="user-login" v-if="! signIn" v-bind:appData="appData" v-on:userLogin="userLogin"></user-login>
-          <div class="md-layout md-alignment-top-center edit-box" style="margin:64px auto;" v-else>
+          <div class="md-layout md-alignment-top-center edit-box" style="margin:64px auto;" v-if="signIn && pageType == 'edit'">
             <div class="md-title g-title-line md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100">{{topic.title}}</div>
             <div class="edit md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100">
               <mavon-editor ref=md @imgAdd="$imgAdd" @imgDel="upImgDel" v-model="topic.body" :ishljs="false" :boxShadow="true"></mavon-editor>
@@ -15,9 +15,15 @@
                 <span class="md-helper-text"></span>
                 <span class="md-error">必须填写编辑理由才可以提交</span>
               </md-field>
-              <md-button class="md-raised md-primary" @click="submitTopic">提交</md-button>
+              <md-button class="md-raised md-primary" @click="submitTopic" :disabled="submit.status">{{submit.text}}</md-button>
             </div>
-          </div>
+        </div>
+        <div class="md-layout md-alignment-top-center edit-box" style="margin:64px auto;" v-if="signIn && pageType == 'preview'">
+            <div class="md-display-2">{{topic.title}}</div>
+            <md-content class="md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100">
+              {{topic.body}}
+            </md-content>
+        </div>
         </transition>
         <div class="up-info">
           <div class="upload-info md-snackbar" v-for="(upload, index) in uploadImg" v-show.sync="upload.show">
@@ -153,14 +159,23 @@ export default {
     topic: [],
     uploadImg: [],
     message: [],
+    initleftbtn: 'back',
     msg: {
       show: false,
       timeout: 3000,
       info:'',
       class: 'md-primary'
     },
+    submit: {
+      text: '提交',
+      status: false
+    },
     error: {
       type: null
+    },
+    pageType: 'edit',
+    headerInfo: {
+      leftbtn: 'back'
     }
   }),
   created () {
@@ -187,6 +202,15 @@ export default {
         _this.appData.user = []
       });
     },
+    $back () {
+      if (this.pageType == 'preview') {
+        this.pageType = 'edit'
+        this.headerInfo.leftbtn = this.initleftbtn
+        this.msg.show = false
+      } else {
+        window.history.go(-1);
+      }
+    },
     submitTopic () {
       console.log(this.topic)
       if( ! this.topic.reason ) {
@@ -201,8 +225,26 @@ export default {
         this.topic.topic_id = this.topic.id;
         this.topic.id = null
       }
+      let _this = this;
+      this.submit = {
+        text: '正在提交...',
+        status: true
+      }
       axios.post('/topic_edit', this.topic).then( function (res) {
-        console.log(res)
+        if (res.status === 200) {
+          _this.msg.info = '您的编辑已经提交，需要审核后才会显示。'
+          _this.msg.show = true
+          _this.msg.class = 'md-primary'
+          _this.msg.timeout = Infinity
+          _this.error.type = null
+          _this.pageType = 'preview'
+          _this.submit = {
+            text: '提交',
+            status: false
+          }
+          _this.headerInfo.leftbtn = 'back'
+          return;
+        }
       })
     },
     refresh_token () {

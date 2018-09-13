@@ -30,7 +30,7 @@
                 @endif
             </div>
             <div class="mdui-card-actions">
-                <a href="{{ route('topic.edit', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
+                <a href="{{ route('topic_edit.show', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
                 <button class="mdui-btn mdui-ripple">举报</button>
                 <button class="mdui-btn mdui-btn-icon mdui-float-right"><i class="mdui-icon material-icons">expand_more</i></button>
             </div>
@@ -41,8 +41,8 @@
             </div>
             <div class="mdui-card-content mdui-p-t-0">
                 @if (count($topic->edits))
-                    @foreach($topic->edits as $edit)
-                        @include('user._show_info', ['user' => $edit])
+                    @foreach($topic->edits()->distinct()->get() as $edit)
+                        <img src="{{$edit->avatar}}" alt="{{$edit->name}}"/>
                     @endforeach
                 @endif
             </div>

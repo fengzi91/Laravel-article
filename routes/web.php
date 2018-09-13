@@ -36,9 +36,11 @@ Route::get('topics/comments/{topic}', 'TopicsController@getComments')->name('top
 
 Route::resource('tags', 'TagsController', ['only' => [ 'show' ]]);
 
-Route::get('topic_edit/{topic}', 'TopicEditController@edit')->name('topic.edit');
+Route::get('topic_edit/{topic}', 'TopicEditController@show')->name('topic_edit.show');
 
-Route::resource('topic_edit', 'TopicEditController', ['only' => [ 'show', 'store', 'update' ]]);
+Route::get('topic_edit/{topic_edit}', 'TopicEditController@show')->name('topic_edit_admin.show');
+
+Route::resource('topic_edit', 'TopicEditController', ['only' => [ 'index', 'edit', 'store', 'update' ]]);
 // 图片上传地址
 
 Route::post('upload_image', 'TopicsController@uploadImage')->name('topics.upload_image');

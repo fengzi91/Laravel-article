@@ -1,9 +1,12 @@
 <template>
 	<div>
     <md-toolbar class="md-primary topbar" md-mode="flexible">
-      <md-button class="md-icon-button" @click="showNavigation = true">
+      <md-button class="md-icon-button" @click="showNavigation = true" v-if="headerInfo.leftbtn == 'menu'">
         <md-icon>menu</md-icon>
       </md-button>
+      <md-button class="md-icon-button" @click="$emit('back')" v-else>
+        <md-icon>arrow_back</md-icon>
+      </md-button>  
       <span class="md-title" style="flex: 1">{{appData.siteName}}</span>
       <md-menu md-size="medium" style="margin-right: 24px;"md-align-trigger v-if="appData.signIn" >
         <md-avatar md-menu-trigger style="cursor: pointer;">
@@ -39,7 +42,7 @@
 <script>
 	export default {
 		name: 'gengHeader',
-    props: ['appData'],
+    props: ['appData', 'headerInfo'],
     data: () => ({
       showNavigation: false,
       username: '',

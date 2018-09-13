@@ -14,12 +14,11 @@ class TopicEditController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth', ['except' => ['show', 'edit']]);
+        $this->middleware('auth', ['except' => [ 'show' ]]);
     }
-    public function show()
+    public function show(TopicEdit $topicedit, Topic $topic)
     {
-    	// 显示一个用户的编辑
-
+        return view('topic_edit.create', compact('topic'));
     }
     public function store(TopicEditRequest $request, Topic $topic, TopicEdit $topicedit) 
     {
@@ -36,8 +35,10 @@ class TopicEditController extends Controller
     {
     	dd($request->all());
     }
-    public function edit(TopicEditRequest $request, Topic $topic)
+    public function edit(TopicEditRequest $request, TopicEdit $topicedit)
     {
-    	return view('topic_edit.create', compact('topic'));
+        // 编辑一份存档
+        $topic = $topicedit;
+        return view('topic_edit.create', compact('topic'));
     }
 }

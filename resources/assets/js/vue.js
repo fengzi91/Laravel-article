@@ -57,6 +57,7 @@ Vue.component('user-login', require('./components/UserLogin.vue'));
 Vue.component('geng-header', require('./components/GengHeader.vue'));
 
 Vue.component('geng-flash', require('./components/Flash.vue'));
+
 const app = new Vue({
     el: '#app',
     methods: {
