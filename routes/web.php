@@ -36,11 +36,15 @@ Route::get('topics/comments/{topic}', 'TopicsController@getComments')->name('top
 
 Route::resource('tags', 'TagsController', ['only' => [ 'show' ]]);
 
-Route::get('topic_edit/{topic}', 'TopicEditController@show')->name('topic_edit.show');
+// 新建一份历史档案
+Route::get('topic_edit/{topic}/create', 'TopicEditController@create')->name('topic_edit.create');
+// 审核一份文档
 
-Route::get('topic_edit/{topic_edit}', 'TopicEditController@show')->name('topic_edit_admin.show');
+Route::get('topic_edit/{topic}/check/{topic_edit}/{type?}', 'TopicEditController@check')->name('topic_edit.check');
 
-Route::resource('topic_edit', 'TopicEditController', ['only' => [ 'index', 'edit', 'store', 'update' ]]);
+// show 方法显示档案的审核和预览
+
+Route::resource('topic_edit', 'TopicEditController', ['only' => [ 'index', 'edit', 'store', 'update', 'show' ]]);
 // 图片上传地址
 
 Route::post('upload_image', 'TopicsController@uploadImage')->name('topics.upload_image');

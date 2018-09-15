@@ -19,10 +19,12 @@
             </div>
         </div>
         <div class="md-layout md-alignment-top-center edit-box" style="margin:64px auto;" v-if="signIn && pageType == 'preview'">
+        <div class="md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100">
             <div class="md-display-2">{{topic.title}}</div>
-            <md-content class="md-layout-item md-size-60 md-medium-size-45 md-small-size-50 md-xsmall-size-100">
+            <md-content class="preview">
               {{topic.body}}
             </md-content>
+          </div>
         </div>
         </transition>
         <div class="up-info">
@@ -60,8 +62,11 @@
     min-height: 100vh;
     padding-top: 64px;
   }
-  .edit{
+  .edit, .preview{
     margin: 32px auto;
+  }
+  .preview {
+    padding: 16px;
   }
   .g-title-line{
     border-bottom:2px solid rgba(231,231,231,.7);
@@ -182,7 +187,13 @@ export default {
     this.appData = window.App;
     this.signIn = window.App.signIn
     this.siteName = window.App.siteName
-    this.topic = window.App.topicData
+    if(window.Topic) {
+      this.topic = window.Topic
+      this.topic.title = window.App.topicData.title
+    } else {
+      this.topic = window.App.topicData
+    }
+    console.log(this.topic)
   },
   computed: {
   },
@@ -212,7 +223,6 @@ export default {
       }
     },
     submitTopic () {
-      console.log(this.topic)
       if( ! this.topic.reason ) {
         // 添加一个出错信息
         this.msg.info = '请输入编辑理由'
@@ -230,11 +240,13 @@ export default {
         text: '正在提交...',
         status: true
       }
-      axios.post('/topic_edit', this.topic).then( function (res) {
+
+      this.$submit().then( function (res) {
         if (res.status === 200) {
-          _this.msg.info = '您的编辑已经提交，需要审核后才会显示。'
+          _this.msg.info = res.data.message// '您的编辑已经提交，需要审核后才会显示。'
           _this.msg.show = true
           _this.msg.class = 'md-primary'
+          if (res.data.error > 0) _this.msg.class = 'md-accent'
           _this.msg.timeout = Infinity
           _this.error.type = null
           _this.pageType = 'preview'
@@ -246,6 +258,13 @@ export default {
           return;
         }
       })
+    },
+    $submit () {
+      if ( ! this.topic.id) {
+        return axios.post('/topic_edit', this.topic)
+      } else {
+        return axios.put('/topic_edit/' + this.topic.id, this.topic)
+      }
     },
     refresh_token () {
       // 更新 laravel 的 crsf_token

@@ -18,4 +18,23 @@ class TopicEdit extends Model
     {
     	return $this->belongsTo(Topic::class);
     }
+
+    // 获取状态
+    public function getStextAttribute($value) 
+    {
+        $value = $this->status;
+        switch($value) {
+            case -1 :
+            return '已拒绝';
+            break;
+            case 0 :
+            return '待审核';
+            break;
+            case 1 :
+            return '已通过';
+            break;
+            default:
+            return '未知';
+        }
+    }
 }

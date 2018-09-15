@@ -10,7 +10,6 @@ use Auth;
 use App\Handlers\ImageUploadHandler;
 use App\Models\Tag;
 use Markdown;
-use App\Handlers\TextHandler;
 
 class TopicsController extends Controller
 {

@@ -17,6 +17,7 @@
         'topicData' => $topic
     ]) !!};
     </script>
+    @yield('scripts')
   </head>
 
   <body>
@@ -26,5 +27,12 @@
     <script src="{{ mix('js/manifest.js') }}"></script>
     <script src="{{ mix('js/vendor.js') }}"></script>
     <script src="{{ mix('js/vue.js') }}"></script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            methods: {
+            }
+        });
+    </script>
   </body>
 </html>

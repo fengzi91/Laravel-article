@@ -30,23 +30,27 @@
                 @endif
             </div>
             <div class="mdui-card-actions">
-                <a href="{{ route('topic_edit.show', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
+                <a href="{{ route('topic_edit.create', $topic->id) }}" class="mdui-btn mdui-ripple">参与编辑</a>
                 <button class="mdui-btn mdui-ripple">举报</button>
                 <button class="mdui-btn mdui-btn-icon mdui-float-right"><i class="mdui-icon material-icons">expand_more</i></button>
             </div>
         </div>
+        @if (count($topic->edits))
         <div class="mdui-card mdui-m-t-4">
             <div class="mdui-card-primary">
                 <div class="mdui-card-primary-title">参与编辑的用户</div>
             </div>
             <div class="mdui-card-content mdui-p-t-0">
-                @if (count($topic->edits))
+                
                     @foreach($topic->edits()->distinct()->get() as $edit)
-                        <img src="{{$edit->avatar}}" alt="{{$edit->name}}"/>
+                        <a href="{{route('users.show', $edit)}}" class="g-avatar">
+                            <img src="{{$edit->avatar}}" alt="{{$edit->name}}" class="mdui-img-circle" />
+                        </a>
                     @endforeach
-                @endif
+                
             </div>
         </div>
+        @endif
         <div class="mdui-card mdui-m-t-4">
             <div class="mdui-card-primary">
                 <div class="mdui-card-primary-title">评论(@{{comments_total}})</div>

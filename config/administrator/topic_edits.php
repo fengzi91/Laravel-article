@@ -33,7 +33,7 @@ return [
             'sortable' => false,
             'output' => function ($value, $model) {
                 $id = $model->id;
-                return '<a href="/">查看' . $id . '</a>';
+                return '<a href="' . route('topic_edit.show', $id) . '">审核</a>';
             },
         ],
     ],
