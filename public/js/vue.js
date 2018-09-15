@@ -1,4 +1,4 @@
-webpackJsonp([1],{
+webpackJsonp([0],{
 
 /***/ "./resources/assets/js/vue.js":
 /***/ (function(module, __webpack_exports__) {
