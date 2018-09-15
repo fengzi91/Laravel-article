@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use App\Models\Topic;
 class PagesController extends Controller
 {
-    public function root() {
-      return view('pages.root');
+    public function root(Topic $topic) {
+      $topics = $topic->with('user')->recent()->paginate(30);
+      return view('pages.root', compact('topics'));
     }
     public function permissionDenied()
     {

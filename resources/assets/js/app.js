@@ -7,10 +7,8 @@
 
 require('./bootstrap');
 
-require('./mdui');
+require('./mdui.min');
 
 
 
-window.Vue = require('vue');
 
-require('./edit.topic');

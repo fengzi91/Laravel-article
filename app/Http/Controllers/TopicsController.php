@@ -10,7 +10,6 @@ use Auth;
 use App\Handlers\ImageUploadHandler;
 use App\Models\Tag;
 use Markdown;
-use App\Handlers\TextHandler;
 
 class TopicsController extends Controller
 {
@@ -37,7 +36,6 @@ class TopicsController extends Controller
 
 	public function store(TopicRequest $request, Topic $topic)
 	{
-        //if($request->get('tag'))
         $tagIds = [];
         if ($request->get('tag')) {
             $tagIds = $topic->autoTag($request->get('tag'));
@@ -57,6 +55,10 @@ class TopicsController extends Controller
 
 	public function update(TopicRequest $request, Topic $topic)
 	{
+        // 对于内容的修改，统一纳入历史记录里
+
+        $user = Auth::user();
+
         $this->authorize('update', $topic);
 
 		$topic->update($request->all());

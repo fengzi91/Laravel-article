@@ -2,8 +2,8 @@
 <div class="mdui-card mdui-typo">
   @foreach ($topics as $topic)
   <div class="mdui-card-content">
-        <a href="{{ route('topics.show', $topic->id) }}">
-          {{ $topic->title }}
+        <a href="{{ route('topics.show', $topic->topic->id) }}">
+          {{ $topic->topic->title }}
         </a>
   </div>
   @endforeach

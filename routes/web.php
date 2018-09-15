@@ -36,6 +36,15 @@ Route::get('topics/comments/{topic}', 'TopicsController@getComments')->name('top
 
 Route::resource('tags', 'TagsController', ['only' => [ 'show' ]]);
 
+// 新建一份历史档案
+Route::get('topic_edit/{topic}/create', 'TopicEditController@create')->name('topic_edit.create');
+// 审核一份文档
+
+Route::get('topic_edit/{topic}/check/{topic_edit}/{type?}', 'TopicEditController@check')->name('topic_edit.check');
+
+// show 方法显示档案的审核和预览
+
+Route::resource('topic_edit', 'TopicEditController', ['only' => [ 'index', 'edit', 'store', 'update', 'show' ]]);
 // 图片上传地址
 
 Route::post('upload_image', 'TopicsController@uploadImage')->name('topics.upload_image');
@@ -44,3 +53,7 @@ Route::resource('replies', 'RepliesController', ['only' => [ 'store', 'destroy']
 Route::resource('notifications', 'NotificationsController', ['only' => ['index']]);
 
 Route::get('permission-denied', 'PagesController@permissionDenied')->name('permission-denied');
+
+Route::get('crsf_token', function () {
+	return ['token' => csrf_token()];
+});

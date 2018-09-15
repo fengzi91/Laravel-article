@@ -10,11 +10,23 @@ class Topic extends Model
 
     protected $fillable = ['title', 'body', 'excerpt', 'slug'];
 
+    // 话题与作者的关联
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // 话题与编辑者的关联
+    public function edits()
+    {
+        return $this->belongsToMany(User::Class, 'topic_edits');
+    }
+
+    // 用户是否是参与编辑者
+    public function isEdits($user_id)
+    {   //$user 为登录的用户
+        return $this->edits()->where('user_id', $user_id)->first();
+    }
     // 定义话题与标签的关联
     public function tags()
     {
@@ -25,6 +37,12 @@ class Topic extends Model
     public function replies()
     {
         return $this->hasMany(Reply::class);
+    }
+
+    // 话题与编辑存档的关联
+    public function topic_edits()
+    {
+        return $this->hasMany(TopicEdit::class);
     }
 
     // 话题的排序

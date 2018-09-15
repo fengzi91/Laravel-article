@@ -1,5 +1,5 @@
 <ul class="mdui-list" :class="list_class" style="overflow: hidden;position: relative;margin-top: 16px;" :style="'max-height' + comments_line * 88">
-<transition-group name="list">  
+<transition-group name="list" mode="out-in">  
   <template v-for="item in comments">
   <li :key="item.id" class="g-reply-list-item mdui-clearfix" :name="'reply' + item.id" :id="'reply' + item.id">
     <div class="mdui-float-left">

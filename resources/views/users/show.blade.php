@@ -11,7 +11,7 @@
       @if (if_query('tab', 'replies'))
         @include('users._replies', ['replies' => $user->replies()->with('topic')->recent()->paginate(15)])
       @else
-        @include('users._topics', ['topics' => $user->topics()->recent()->paginate(15)])
+        @include('users._topics', ['topics' => $user->topic_edits()->with('topic')->paginate(15)])
       @endif
     </div>
   </div>

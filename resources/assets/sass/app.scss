@@ -36,6 +36,32 @@ body {
 
     }
 }
+.g-avatar {
+    img { 
+        width: 33px;
+        height: 33px;
+    }
+}
+.g-index-container{
+    .g-index-box{
+        height: 86px;
+        overflow:hidden;
+        margin-top: 16px;
+    .g-index-box-title {
+        border: 2px solid #ddd;
+        padding: 32px;
+        overflow: hidden;
+        background-color: rgba(255,255,255,.7);
+        color: #FF5722;
+        white-space:nowrap;
+        text-overflow:ellipsis;
+        a{
+            text-decoration:none;
+            color: #FF5722;
+        }
+    }
+    }
+}
 .g-user-btn {
     margin-top: 16px !important;
     a.mdui-btn{ 

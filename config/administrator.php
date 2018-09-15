@@ -46,6 +46,7 @@ return array(
             'tags',
             'topics',
             'replies',
+            'topic_edits'
         ],
         '站点管理' => [
             'settings.site',
