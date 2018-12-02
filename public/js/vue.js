@@ -1,12 +1,5 @@
 webpackJsonp([0],{
 
-<<<<<<< HEAD
-/***/ "./resources/assets/js/vue.js":
-/***/ (function(module, __webpack_exports__) {
-
-"use strict";
-throw new Error("Module build failed: Error: ENOENT: no such file or directory, open '/home/vagrant/Code/geng/resources/assets/js/vue.js'");
-=======
 /***/ "./node_modules/babel-loader/lib/index.js?{\"cacheDirectory\":true,\"presets\":[[\"env\",{\"modules\":false,\"targets\":{\"browsers\":[\"> 2%\"],\"uglify\":true}}]],\"plugins\":[\"transform-object-rest-spread\",[\"transform-runtime\",{\"polyfill\":false,\"helpers\":false}]]}!./node_modules/vue-loader/lib/selector.js?type=script&index=0!./resources/assets/js/components/Flash.vue":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -50506,7 +50499,6 @@ Vue.component('geng-header', __webpack_require__("./resources/assets/js/componen
 Vue.component('geng-flash', __webpack_require__("./resources/assets/js/components/Flash.vue"));
 
 Vue.component('topic-show', __webpack_require__("./resources/assets/js/components/TopicShow.vue"));
->>>>>>> multi-user-edit-topics
 
 /***/ }),
 
