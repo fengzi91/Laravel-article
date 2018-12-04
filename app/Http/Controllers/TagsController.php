@@ -20,8 +20,9 @@ class TagsController extends Controller
 		return view('tags.index', compact('tags'));
 	}
 
-    public function show(Tag $tag)
+    public function show(Request $request, Tag $tag, $page = 1)
     {
+        $request->merge(['page' => $page]);
         $topics = $tag->topics()->paginate(24);
 
         return view('tags.show', compact('tag','topics'));

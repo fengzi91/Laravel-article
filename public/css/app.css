@@ -8547,6 +8547,11 @@ body {
   cursor: pointer;
 }
 
+.topics-create-page .form-button,
+.topics-edit-page .form-button {
+  margin-top: 16px;
+}
+
 /* 个人中心 */
 
 .g-user-banner-full {

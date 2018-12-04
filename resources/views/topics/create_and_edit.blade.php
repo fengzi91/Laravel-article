@@ -189,9 +189,8 @@
                         </span>
                     </div>
                 </div>
-
-                <div class="mdui-textfield">
-                    <button class="mdui-btn mdui-color-blue-accent mdui-ripple">提 交</button>
+                <div class="form-button">
+                    <button class="btn btn-primary">提 交</button>
                 </div>
                 </form>
             </div>

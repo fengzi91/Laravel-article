@@ -75,3 +75,12 @@ function str_replace_limit($search, $replace, $subject, $limit=-1){
     }
     return preg_replace($search, $replace, $subject, $limit);
 }
+
+
+// 重写page
+function set_page_url($str) {
+    $str = preg_replace('/\/page\/\d+/', '', $str);
+    $str = str_replace('?page=1', '', $str);
+    $str = str_replace('?page=', '/page/', $str);
+    return $str;
+}

@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Topic;
 class PagesController extends Controller
 {
-    public function root(Topic $topic) {
-      $topics = $topic->with('user')->recent()->paginate(24);
-      return view('pages.root', compact('topics'));
+    public function root(Request $request, Topic $topic, $page = 1)
+    {
+        $request->merge(['page' => $page]);
+        $topics = $topic->with('user')->recent()->paginate(24);
+        return view('pages.root', compact('topics'));
     }
     public function permissionDenied()
     {
