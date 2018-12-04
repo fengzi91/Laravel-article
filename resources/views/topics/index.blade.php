@@ -11,7 +11,7 @@
                 <div class="mdui-typo-headline">内容列表</div>
             </div>
             <div class="mdui-float-right mdui-p-r-2">
-                <a href="{{ route('topics.create') }}" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">&#xe145;</i></a>
+                <a href="{{ route('topics.create') }}" rel="nofollow" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">&#xe145;</i></a>
             </div>
         </div>
         <div class="mdui-divider" style="height:2px;margin-top:2px;"></div>

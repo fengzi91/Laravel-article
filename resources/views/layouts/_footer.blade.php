@@ -1,7 +1,8 @@
 <footer class="footer">
-    <div class="mdui-container">
-        <p class="mdui-float-left">
-          2018 <span style="color: #e27575;font-size: 14px;">❤</span>
+    <div class="container">
+        <p class="pull-left">
+            由 fengzi91 设计和编码
         </p>
+        <p class="pull-right"><a href="mailto:name@email.com">联系我们</a></p>
     </div>
 </footer>

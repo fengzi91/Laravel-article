@@ -11,9 +11,6 @@ let mix = require('laravel-mix');
  |
  */
 mix.js('resources/assets/js/app.js', 'public/js')
-   .js('resources/assets/js/vue.js', 'public/js/')
-   .sass('resources/assets/sass/app.scss', 'public/css')
-   .styles(['node_modules/vue-material/dist/vue-material.min.css', 'node_modules/vue-material/dist/theme/default.css'], 'public/css/material.css')
-   .copy('resources/assets/sass/animate.min.css', 'public/css/animate.min.css')
-   .extract(['vue','axios'])
-   .version();
+   .js('resources/assets/js/vue.js', 'public/js')
+   .copy('resources/assets/mdui/css/mdui.min.css', 'public/css/mdui.min.css')
+   .sass('resources/assets/sass/app.scss', 'public/css').version();

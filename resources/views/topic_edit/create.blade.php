@@ -3,8 +3,3 @@
 @section('content')
 <topic-create />
 @stop
-@section('scripts')
-    <script>
-        window.Topic = {!! json_encode($topic_edit) !!};
-    </script>
-@stop

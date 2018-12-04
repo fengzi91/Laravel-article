@@ -15,4 +15,9 @@ class Reply extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getsubTimeAttribute($value)
+    {
+        return $this->create_at;
+    }
 }

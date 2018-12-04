@@ -1,47 +1,64 @@
 @extends('layouts.app')
-
+@section('title', '用户登录')
 @section('content')
-<div class="mdui-container">
-    <div class="mdui-row mdui-m-t-5">
-        <div class="mdui-col-md-6 mdui-col-offset-md-3">
-            <div class="mdui-card">
-                <div class="mdui-card-header mdui-valign mdui-typo-headline">登 录</div>
-                <div class="mdui-card-content mdui-p-t-0">
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">登录{{ config('app.sitename') }}</div>
+
+                <div class="panel-body">
                     <form class="form-horizontal" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
-                        <div class="mdui-textfield mdui-textfield-floating-label {{ $errors->has('email') ? ' mdui-textfield-invalid' : '' }}">
-                            <label for="email" class="mdui-textfield-label">邮 箱</label>
-                            <input id="email" type="email" class="mdui-textfield-input" name="email" value="{{ old('email') }}" required autofocus>
-                            @if ($errors->has('email'))
-                            <div class="mdui-textfield-error">
-                                {{ $errors->first('email') }}
+
+                        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                            <label for="email" class="col-md-4 control-label">邮箱：</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required autofocus>
+
+                                @if ($errors->has('email'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
                             </div>
-                            @endif
                         </div>
 
-                        <div class="mdui-textfield mdui-textfield-floating-label {{ $errors->has('password') ? ' mdui-textfield-invalid' : '' }}">
-                            <label for="password" class="mdui-textfield-label">密 码</label>
-                            <input id="password" type="password" class="mdui-textfield-input" name="password" required>
-                            @if ($errors->has('password'))
-                            <div class="mdui-textfield-error">
-                                {{ $errors->first('password') }}
+                        <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                            <label for="password" class="col-md-4 control-label">密码：</label>
+
+                            <div class="col-md-6">
+                                <input id="password" type="password" class="form-control" name="password" required>
+
+                                @if ($errors->has('password'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('password') }}</strong>
+                                    </span>
+                                @endif
                             </div>
-                            @endif
                         </div>
-                        <div class="mdui-textfield mdui-p-l-2">
-                            <label class="mdui-switch">
-                                <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}/>
-                                <i class="mdui-switch-icon"></i>
-                                <i class="mdui-p-l-1">记住我</i>
-                            </label>
+
+                        <div class="form-group">
+                            <div class="col-md-6 col-md-offset-4">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> 记住我
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mdui-textfield">
-                            <button type="submit" class="mdui-btn mdui-color-blue mdui-ripple mdui-text-color-white">
-                                登  录
-                            </button>
-                            <a class="mdui-p-l-2" href="{{ route('password.request') }}">
-                                忘记密码?
-                            </a>
+
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4">
+                                <button type="submit" class="btn btn-primary">
+                                    登录
+                                </button>
+
+                                <a class="btn btn-link" href="{{ route('password.request') }}">
+                                    忘记密码?
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>

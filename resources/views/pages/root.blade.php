@@ -2,19 +2,11 @@
 @section('title', '首页')
 
 @section('content')
-<div class="mdui-container">
-  <div class="mdui-row mdui-m-t-4">
-  @if (count($topics)) 
-  	<div class="g-index-container mdui-row-md-5">
-  	@foreach($topics as $topic) 
-  	<div class="mdui-col g-index-box">
-  		<div class="g-index-box-title">
-  			<a href="{{route('topics.show', $topic->id)}}">{{$topic->title}}</a>
-  		</div>
-  	</div>
-  	@endforeach
-  	</div>
-  @endif
-</div>
+<div class="row">
+    <div class="col-lg-12 col-md-12 topic-list">
+        <h3 class="container-title">最近更新</h3>
+        @include('topics._topic_list', ['topics' => $topics])
+        {!! $topics->appends(Request::except('page'))->render() !!}
+    </div>
 </div>
 @stop

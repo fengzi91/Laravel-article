@@ -1,49 +1,59 @@
-<nav class="mdui-container-fluid mdui-p-x-0 mdui-shadow-2 g-nav" mdui-headroom>
-    <div class="">
-        <div class="mdui-container mdui-center mdui-row">
-            <div class="g-logo mdui-col-xs-4">
-                <a class="mdui-typo-headline mdui-hidden-xs g-logo" href="{{ url('/') }}">
-                    <i>梗</i>来了
-                </a>
-                <a href="/topics" class="mdui-m-l-3 g-header-link">发现</a>
-            </div>
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#app-navbar-collapse">
+                <span class="sr-only">Toggle Navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Branding Image -->
+            <a class="navbar-brand" href="{{ url('/') }}">梗来了</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="app-navbar-collapse">
+            <!-- Left Side Of Navbar -->
+            <ul class="nav navbar-nav">
+
+            </ul>
+
+            <!-- Right Side Of Navbar -->
+            <ul class="nav navbar-nav navbar-right">
             @guest
-            <div class="mdui-float-right g-user-btn">
-                <a href="{{ route('login') }}" class="mdui-btn mdui-ripple">登录</a>
-                <a href="{{ route('register') }}" class="mdui-btn mdui-ripple">注册</a>
-            </div>
+                <li><a href="{{ route('login') }}" rel="nofollow">登录</a></li>
+                <li><a href="{{ route('register') }}" rel="nofollow">注册</a></li>
             @else
-            <div class="mdui-float-right mdui-valign g-user-header-btn">
-                <a href="{{ route('notifications.index') }}" class="mdui-btn mdui-m-r-1">新消息({{ Auth::user()->notification_count }})</a>
-                <a href="{{ route('topics.create') }}" class="mdui-btn mdui-btn-icon mdui-text-color-theme-accent mdui-ripple mdui-m-r-1"><i class="mdui-icon material-icons">add</i></a>
-                <a href="javascript:void(0);" class="user-avatar mdui-ripple" mdui-menu="{target: '#example-attr', position: 'bottom', align: 'right', covered: false}">
-                    <img src="{{ Auth::user()->newavatar }}" class="mdui-img-circle" width="40" height="40" />
-                </a>
-                <ul class="mdui-menu" id="example-attr">
-                    @can('manage_contents')
-                     <li class="mdui-menu-item">
-                        <a href="{{ url(config('administrator.uri')) }}">
-                            管理后台
+                <li>
+                    <a href="{{ route('notifications.index') }}" rel="nofollow">新消息({{ Auth::user()->notification_count }})</a>
+                </li>
+                <li>
+                    <a href="{{ route('topics.create') }}" rel="nofollow">发布</a>
+                </li>
+                <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                            <span class="user-avatar pull-left" style="margin-right:8px; margin-top:-5px;">
+                                <img src="{{ Auth::user()->avatar }}" class="img-responsive img-circle" width="30px" height="30px">
+                            </span>
+                            {{ Auth::user()->name }} <span class="caret"></span>
                         </a>
-                    </li>
-                    @endcan
-                    <li class="mdui-menu-item">
-                        <a href="{{ route('users.show', Auth::id()) }}">个人中心</a>
-                    </li>
-                    <li class="mdui-menu-item">
-                        <a href="{{ route('users.edit', Auth::id()) }}">编辑资料</a>
-                    </li>
-                    <li class="mdui-menu-item">
-                        <a href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                            退出登录
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            {{ csrf_field() }}
-                        </form>
-                    </li>
-                </ul>
-            </div>
+
+                        <ul class="dropdown-menu" role="menu">
+                            <li>
+                                <a href="{{ route('logout') }}"
+                                    onclick="event.preventDefault();
+                                             document.getElementById('logout-form').submit();" rel="nofollow">
+                                    退出登录
+                                </a>
+
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    {{ csrf_field() }}
+                                </form>
+                            </li>
+                        </ul>
+                </li>
             @endguest
+            </ul>
         </div>
     </div>
 </nav>

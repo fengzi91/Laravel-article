@@ -1,4 +1,1635 @@
-webpackJsonp([2],{
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./node_modules/axios/index.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__("./node_modules/axios/lib/axios.js");
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/adapters/xhr.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+var settle = __webpack_require__("./node_modules/axios/lib/core/settle.js");
+var buildURL = __webpack_require__("./node_modules/axios/lib/helpers/buildURL.js");
+var parseHeaders = __webpack_require__("./node_modules/axios/lib/helpers/parseHeaders.js");
+var isURLSameOrigin = __webpack_require__("./node_modules/axios/lib/helpers/isURLSameOrigin.js");
+var createError = __webpack_require__("./node_modules/axios/lib/core/createError.js");
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__("./node_modules/axios/lib/helpers/btoa.js");
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+    var loadEvent = 'onreadystatechange';
+    var xDomain = false;
+
+    // For IE 8/9 CORS support
+    // Only supports POST and GET calls and doesn't returns the response headers.
+    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+    if ("development" !== 'test' &&
+        typeof window !== 'undefined' &&
+        window.XDomainRequest && !('withCredentials' in request) &&
+        !isURLSameOrigin(config.url)) {
+      request = new window.XDomainRequest();
+      loadEvent = 'onload';
+      xDomain = true;
+      request.onprogress = function handleProgress() {};
+      request.ontimeout = function handleTimeout() {};
+    }
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request[loadEvent] = function handleLoad() {
+      if (!request || (request.readyState !== 4 && !xDomain)) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      var response = {
+        data: responseData,
+        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
+        status: request.status === 1223 ? 204 : request.status,
+        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__("./node_modules/axios/lib/helpers/cookies.js");
+
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/axios.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+var bind = __webpack_require__("./node_modules/axios/lib/helpers/bind.js");
+var Axios = __webpack_require__("./node_modules/axios/lib/core/Axios.js");
+var defaults = __webpack_require__("./node_modules/axios/lib/defaults.js");
+
+/**
+ * Create an instance of Axios
+ *
+ * @param {Object} defaultConfig The default config for the instance
+ * @return {Axios} A new instance of Axios
+ */
+function createInstance(defaultConfig) {
+  var context = new Axios(defaultConfig);
+  var instance = bind(Axios.prototype.request, context);
+
+  // Copy axios.prototype to instance
+  utils.extend(instance, Axios.prototype, context);
+
+  // Copy context to instance
+  utils.extend(instance, context);
+
+  return instance;
+}
+
+// Create the default instance to be exported
+var axios = createInstance(defaults);
+
+// Expose Axios class to allow class inheritance
+axios.Axios = Axios;
+
+// Factory for creating new instances
+axios.create = function create(instanceConfig) {
+  return createInstance(utils.merge(defaults, instanceConfig));
+};
+
+// Expose Cancel & CancelToken
+axios.Cancel = __webpack_require__("./node_modules/axios/lib/cancel/Cancel.js");
+axios.CancelToken = __webpack_require__("./node_modules/axios/lib/cancel/CancelToken.js");
+axios.isCancel = __webpack_require__("./node_modules/axios/lib/cancel/isCancel.js");
+
+// Expose all/spread
+axios.all = function all(promises) {
+  return Promise.all(promises);
+};
+axios.spread = __webpack_require__("./node_modules/axios/lib/helpers/spread.js");
+
+module.exports = axios;
+
+// Allow use of default import syntax in TypeScript
+module.exports.default = axios;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/Cancel.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/CancelToken.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Cancel = __webpack_require__("./node_modules/axios/lib/cancel/Cancel.js");
+
+/**
+ * A `CancelToken` is an object that can be used to request cancellation of an operation.
+ *
+ * @class
+ * @param {Function} executor The executor function.
+ */
+function CancelToken(executor) {
+  if (typeof executor !== 'function') {
+    throw new TypeError('executor must be a function.');
+  }
+
+  var resolvePromise;
+  this.promise = new Promise(function promiseExecutor(resolve) {
+    resolvePromise = resolve;
+  });
+
+  var token = this;
+  executor(function cancel(message) {
+    if (token.reason) {
+      // Cancellation has already been requested
+      return;
+    }
+
+    token.reason = new Cancel(message);
+    resolvePromise(token.reason);
+  });
+}
+
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
+CancelToken.prototype.throwIfRequested = function throwIfRequested() {
+  if (this.reason) {
+    throw this.reason;
+  }
+};
+
+/**
+ * Returns an object that contains a new `CancelToken` and a function that, when called,
+ * cancels the `CancelToken`.
+ */
+CancelToken.source = function source() {
+  var cancel;
+  var token = new CancelToken(function executor(c) {
+    cancel = c;
+  });
+  return {
+    token: token,
+    cancel: cancel
+  };
+};
+
+module.exports = CancelToken;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/cancel/isCancel.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/Axios.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var defaults = __webpack_require__("./node_modules/axios/lib/defaults.js");
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+var InterceptorManager = __webpack_require__("./node_modules/axios/lib/core/InterceptorManager.js");
+var dispatchRequest = __webpack_require__("./node_modules/axios/lib/core/dispatchRequest.js");
+
+/**
+ * Create a new instance of Axios
+ *
+ * @param {Object} instanceConfig The default config for the instance
+ */
+function Axios(instanceConfig) {
+  this.defaults = instanceConfig;
+  this.interceptors = {
+    request: new InterceptorManager(),
+    response: new InterceptorManager()
+  };
+}
+
+/**
+ * Dispatch a request
+ *
+ * @param {Object} config The config specific for this request (merged with this.defaults)
+ */
+Axios.prototype.request = function request(config) {
+  /*eslint no-param-reassign:0*/
+  // Allow for axios('example/url'[, config]) a la fetch API
+  if (typeof config === 'string') {
+    config = utils.merge({
+      url: arguments[0]
+    }, arguments[1]);
+  }
+
+  config = utils.merge(defaults, this.defaults, { method: 'get' }, config);
+  config.method = config.method.toLowerCase();
+
+  // Hook up interceptors middleware
+  var chain = [dispatchRequest, undefined];
+  var promise = Promise.resolve(config);
+
+  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+    chain.unshift(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+    chain.push(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  while (chain.length) {
+    promise = promise.then(chain.shift(), chain.shift());
+  }
+
+  return promise;
+};
+
+// Provide aliases for supported request methods
+utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, config) {
+    return this.request(utils.merge(config || {}, {
+      method: method,
+      url: url
+    }));
+  };
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, data, config) {
+    return this.request(utils.merge(config || {}, {
+      method: method,
+      url: url,
+      data: data
+    }));
+  };
+});
+
+module.exports = Axios;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/InterceptorManager.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+function InterceptorManager() {
+  this.handlers = [];
+}
+
+/**
+ * Add a new interceptor to the stack
+ *
+ * @param {Function} fulfilled The function to handle `then` for a `Promise`
+ * @param {Function} rejected The function to handle `reject` for a `Promise`
+ *
+ * @return {Number} An ID used to remove interceptor later
+ */
+InterceptorManager.prototype.use = function use(fulfilled, rejected) {
+  this.handlers.push({
+    fulfilled: fulfilled,
+    rejected: rejected
+  });
+  return this.handlers.length - 1;
+};
+
+/**
+ * Remove an interceptor from the stack
+ *
+ * @param {Number} id The ID that was returned by `use`
+ */
+InterceptorManager.prototype.eject = function eject(id) {
+  if (this.handlers[id]) {
+    this.handlers[id] = null;
+  }
+};
+
+/**
+ * Iterate over all the registered interceptors
+ *
+ * This method is particularly useful for skipping over any
+ * interceptors that may have become `null` calling `eject`.
+ *
+ * @param {Function} fn The function to call for each interceptor
+ */
+InterceptorManager.prototype.forEach = function forEach(fn) {
+  utils.forEach(this.handlers, function forEachHandler(h) {
+    if (h !== null) {
+      fn(h);
+    }
+  });
+};
+
+module.exports = InterceptorManager;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/createError.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__("./node_modules/axios/lib/core/enhanceError.js");
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/dispatchRequest.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+var transformData = __webpack_require__("./node_modules/axios/lib/core/transformData.js");
+var isCancel = __webpack_require__("./node_modules/axios/lib/cancel/isCancel.js");
+var defaults = __webpack_require__("./node_modules/axios/lib/defaults.js");
+var isAbsoluteURL = __webpack_require__("./node_modules/axios/lib/helpers/isAbsoluteURL.js");
+var combineURLs = __webpack_require__("./node_modules/axios/lib/helpers/combineURLs.js");
+
+/**
+ * Throws a `Cancel` if cancellation has been requested.
+ */
+function throwIfCancellationRequested(config) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested();
+  }
+}
+
+/**
+ * Dispatch a request to the server using the configured adapter.
+ *
+ * @param {object} config The config that is to be used for the request
+ * @returns {Promise} The Promise to be fulfilled
+ */
+module.exports = function dispatchRequest(config) {
+  throwIfCancellationRequested(config);
+
+  // Support baseURL config
+  if (config.baseURL && !isAbsoluteURL(config.url)) {
+    config.url = combineURLs(config.baseURL, config.url);
+  }
+
+  // Ensure headers exist
+  config.headers = config.headers || {};
+
+  // Transform request data
+  config.data = transformData(
+    config.data,
+    config.headers,
+    config.transformRequest
+  );
+
+  // Flatten headers
+  config.headers = utils.merge(
+    config.headers.common || {},
+    config.headers[config.method] || {},
+    config.headers || {}
+  );
+
+  utils.forEach(
+    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
+    function cleanHeaderConfig(method) {
+      delete config.headers[method];
+    }
+  );
+
+  var adapter = config.adapter || defaults.adapter;
+
+  return adapter(config).then(function onAdapterResolution(response) {
+    throwIfCancellationRequested(config);
+
+    // Transform response data
+    response.data = transformData(
+      response.data,
+      response.headers,
+      config.transformResponse
+    );
+
+    return response;
+  }, function onAdapterRejection(reason) {
+    if (!isCancel(reason)) {
+      throwIfCancellationRequested(config);
+
+      // Transform response data
+      if (reason && reason.response) {
+        reason.response.data = transformData(
+          reason.response.data,
+          reason.response.headers,
+          config.transformResponse
+        );
+      }
+    }
+
+    return Promise.reject(reason);
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/enhanceError.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Update an Error with the specified config, error code, and response.
+ *
+ * @param {Error} error The error to update.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The error.
+ */
+module.exports = function enhanceError(error, config, code, request, response) {
+  error.config = config;
+  if (code) {
+    error.code = code;
+  }
+  error.request = request;
+  error.response = response;
+  return error;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/settle.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var createError = __webpack_require__("./node_modules/axios/lib/core/createError.js");
+
+/**
+ * Resolve or reject a Promise based on response status.
+ *
+ * @param {Function} resolve A function that resolves the promise.
+ * @param {Function} reject A function that rejects the promise.
+ * @param {object} response The response.
+ */
+module.exports = function settle(resolve, reject, response) {
+  var validateStatus = response.config.validateStatus;
+  // Note: status is not exposed by XDomainRequest
+  if (!response.status || !validateStatus || validateStatus(response.status)) {
+    resolve(response);
+  } else {
+    reject(createError(
+      'Request failed with status code ' + response.status,
+      response.config,
+      null,
+      response.request,
+      response
+    ));
+  }
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/core/transformData.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+/**
+ * Transform the data for a request or a response
+ *
+ * @param {Object|String} data The data to be transformed
+ * @param {Array} headers The headers for the request or response
+ * @param {Array|Function} fns A single function or Array of functions
+ * @returns {*} The resulting transformed data
+ */
+module.exports = function transformData(data, headers, fns) {
+  /*eslint no-param-reassign:0*/
+  utils.forEach(fns, function transform(fn) {
+    data = fn(data, headers);
+  });
+
+  return data;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/defaults.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+var normalizeHeaderName = __webpack_require__("./node_modules/axios/lib/helpers/normalizeHeaderName.js");
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = __webpack_require__("./node_modules/axios/lib/adapters/xhr.js");
+  } else if (typeof process !== 'undefined') {
+    // For node use HTTP adapter
+    adapter = __webpack_require__("./node_modules/axios/lib/adapters/xhr.js");
+  }
+  return adapter;
+}
+
+var defaults = {
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Content-Type');
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+    if (utils.isObject(data)) {
+      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+      return JSON.stringify(data);
+    }
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    /*eslint no-param-reassign:0*/
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch (e) { /* Ignore */ }
+    }
+    return data;
+  }],
+
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  }
+};
+
+defaults.headers = {
+  common: {
+    'Accept': 'application/json, text/plain, */*'
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__("./node_modules/process/browser.js")))
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/bind.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/btoa.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
+
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+function E() {
+  this.message = 'String contains an invalid character';
+}
+E.prototype = new Error;
+E.prototype.code = 5;
+E.prototype.name = 'InvalidCharacterError';
+
+function btoa(input) {
+  var str = String(input);
+  var output = '';
+  for (
+    // initialize result and counter
+    var block, charCode, idx = 0, map = chars;
+    // if the next str index does not exist:
+    //   change the mapping table to "="
+    //   check if d has no fractional digits
+    str.charAt(idx | 0) || (map = '=', idx % 1);
+    // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+    output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+  ) {
+    charCode = str.charCodeAt(idx += 3 / 4);
+    if (charCode > 0xFF) {
+      throw new E();
+    }
+    block = block << 8 | charCode;
+  }
+  return output;
+}
+
+module.exports = btoa;
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/buildURL.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+function encode(val) {
+  return encodeURIComponent(val).
+    replace(/%40/gi, '@').
+    replace(/%3A/gi, ':').
+    replace(/%24/g, '$').
+    replace(/%2C/gi, ',').
+    replace(/%20/g, '+').
+    replace(/%5B/gi, '[').
+    replace(/%5D/gi, ']');
+}
+
+/**
+ * Build a URL by appending params to the end
+ *
+ * @param {string} url The base of the url (e.g., http://www.google.com)
+ * @param {object} [params] The params to be appended
+ * @returns {string} The formatted url
+ */
+module.exports = function buildURL(url, params, paramsSerializer) {
+  /*eslint no-param-reassign:0*/
+  if (!params) {
+    return url;
+  }
+
+  var serializedParams;
+  if (paramsSerializer) {
+    serializedParams = paramsSerializer(params);
+  } else if (utils.isURLSearchParams(params)) {
+    serializedParams = params.toString();
+  } else {
+    var parts = [];
+
+    utils.forEach(params, function serialize(val, key) {
+      if (val === null || typeof val === 'undefined') {
+        return;
+      }
+
+      if (utils.isArray(val)) {
+        key = key + '[]';
+      }
+
+      if (!utils.isArray(val)) {
+        val = [val];
+      }
+
+      utils.forEach(val, function parseValue(v) {
+        if (utils.isDate(v)) {
+          v = v.toISOString();
+        } else if (utils.isObject(v)) {
+          v = JSON.stringify(v);
+        }
+        parts.push(encode(key) + '=' + encode(v));
+      });
+    });
+
+    serializedParams = parts.join('&');
+  }
+
+  if (serializedParams) {
+    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+  }
+
+  return url;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/combineURLs.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Creates a new URL by combining the specified URLs
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} relativeURL The relative URL
+ * @returns {string} The combined URL
+ */
+module.exports = function combineURLs(baseURL, relativeURL) {
+  return relativeURL
+    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    : baseURL;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/cookies.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs support document.cookie
+  (function standardBrowserEnv() {
+    return {
+      write: function write(name, value, expires, path, domain, secure) {
+        var cookie = [];
+        cookie.push(name + '=' + encodeURIComponent(value));
+
+        if (utils.isNumber(expires)) {
+          cookie.push('expires=' + new Date(expires).toGMTString());
+        }
+
+        if (utils.isString(path)) {
+          cookie.push('path=' + path);
+        }
+
+        if (utils.isString(domain)) {
+          cookie.push('domain=' + domain);
+        }
+
+        if (secure === true) {
+          cookie.push('secure');
+        }
+
+        document.cookie = cookie.join('; ');
+      },
+
+      read: function read(name) {
+        var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+        return (match ? decodeURIComponent(match[3]) : null);
+      },
+
+      remove: function remove(name) {
+        this.write(name, '', Date.now() - 86400000);
+      }
+    };
+  })() :
+
+  // Non standard browser env (web workers, react-native) lack needed support.
+  (function nonStandardBrowserEnv() {
+    return {
+      write: function write() {},
+      read: function read() { return null; },
+      remove: function remove() {}
+    };
+  })()
+);
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isAbsoluteURL.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
+module.exports = function isAbsoluteURL(url) {
+  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+  // by any combination of letters, digits, plus, period, or hyphen.
+  return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/isURLSameOrigin.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs have full support of the APIs needed to test
+  // whether the request URL is of the same origin as current location.
+  (function standardBrowserEnv() {
+    var msie = /(msie|trident)/i.test(navigator.userAgent);
+    var urlParsingNode = document.createElement('a');
+    var originURL;
+
+    /**
+    * Parse a URL to discover it's components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+    function resolveURL(url) {
+      var href = url;
+
+      if (msie) {
+        // IE needs attribute set twice to normalize properties
+        urlParsingNode.setAttribute('href', href);
+        href = urlParsingNode.href;
+      }
+
+      urlParsingNode.setAttribute('href', href);
+
+      // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+      return {
+        href: urlParsingNode.href,
+        protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+        host: urlParsingNode.host,
+        search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+        hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+        hostname: urlParsingNode.hostname,
+        port: urlParsingNode.port,
+        pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+                  urlParsingNode.pathname :
+                  '/' + urlParsingNode.pathname
+      };
+    }
+
+    originURL = resolveURL(window.location.href);
+
+    /**
+    * Determine if a URL shares the same origin as the current location
+    *
+    * @param {String} requestURL The URL to test
+    * @returns {boolean} True if URL shares the same origin, otherwise false
+    */
+    return function isURLSameOrigin(requestURL) {
+      var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+      return (parsed.protocol === originURL.protocol &&
+            parsed.host === originURL.host);
+    };
+  })() :
+
+  // Non standard browser envs (web workers, react-native) lack needed support.
+  (function nonStandardBrowserEnv() {
+    return function isURLSameOrigin() {
+      return true;
+    };
+  })()
+);
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/normalizeHeaderName.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+module.exports = function normalizeHeaderName(headers, normalizedName) {
+  utils.forEach(headers, function processHeader(value, name) {
+    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+      headers[normalizedName] = value;
+      delete headers[name];
+    }
+  });
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/parseHeaders.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__("./node_modules/axios/lib/utils.js");
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/helpers/spread.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Syntactic sugar for invoking a function and expanding an array for arguments.
+ *
+ * Common use case would be to use `Function.prototype.apply`.
+ *
+ *  ```js
+ *  function f(x, y, z) {}
+ *  var args = [1, 2, 3];
+ *  f.apply(null, args);
+ *  ```
+ *
+ * With `spread` this example can be re-written.
+ *
+ *  ```js
+ *  spread(function(x, y, z) {})([1, 2, 3]);
+ *  ```
+ *
+ * @param {Function} callback
+ * @returns {Function}
+ */
+module.exports = function spread(callback) {
+  return function wrap(arr) {
+    return callback.apply(null, arr);
+  };
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/axios/lib/utils.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var bind = __webpack_require__("./node_modules/axios/lib/helpers/bind.js");
+var isBuffer = __webpack_require__("./node_modules/is-buffer/index.js");
+
+/*global toString:true*/
+
+// utils is a library of generic helper functions non-specific to axios
+
+var toString = Object.prototype.toString;
+
+/**
+ * Determine if a value is an Array
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Array, otherwise false
+ */
+function isArray(val) {
+  return toString.call(val) === '[object Array]';
+}
+
+/**
+ * Determine if a value is an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+ */
+function isArrayBuffer(val) {
+  return toString.call(val) === '[object ArrayBuffer]';
+}
+
+/**
+ * Determine if a value is a FormData
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an FormData, otherwise false
+ */
+function isFormData(val) {
+  return (typeof FormData !== 'undefined') && (val instanceof FormData);
+}
+
+/**
+ * Determine if a value is a view on an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+ */
+function isArrayBufferView(val) {
+  var result;
+  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+    result = ArrayBuffer.isView(val);
+  } else {
+    result = (val) && (val.buffer) && (val.buffer instanceof ArrayBuffer);
+  }
+  return result;
+}
+
+/**
+ * Determine if a value is a String
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a String, otherwise false
+ */
+function isString(val) {
+  return typeof val === 'string';
+}
+
+/**
+ * Determine if a value is a Number
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Number, otherwise false
+ */
+function isNumber(val) {
+  return typeof val === 'number';
+}
+
+/**
+ * Determine if a value is undefined
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+/**
+ * Determine if a value is an Object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Object, otherwise false
+ */
+function isObject(val) {
+  return val !== null && typeof val === 'object';
+}
+
+/**
+ * Determine if a value is a Date
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Date, otherwise false
+ */
+function isDate(val) {
+  return toString.call(val) === '[object Date]';
+}
+
+/**
+ * Determine if a value is a File
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+function isFile(val) {
+  return toString.call(val) === '[object File]';
+}
+
+/**
+ * Determine if a value is a Blob
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Blob, otherwise false
+ */
+function isBlob(val) {
+  return toString.call(val) === '[object Blob]';
+}
+
+/**
+ * Determine if a value is a Function
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Function, otherwise false
+ */
+function isFunction(val) {
+  return toString.call(val) === '[object Function]';
+}
+
+/**
+ * Determine if a value is a Stream
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Stream, otherwise false
+ */
+function isStream(val) {
+  return isObject(val) && isFunction(val.pipe);
+}
+
+/**
+ * Determine if a value is a URLSearchParams object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+ */
+function isURLSearchParams(val) {
+  return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
+}
+
+/**
+ * Trim excess whitespace off the beginning and end of a string
+ *
+ * @param {String} str The String to trim
+ * @returns {String} The String freed of excess whitespace
+ */
+function trim(str) {
+  return str.replace(/^\s*/, '').replace(/\s*$/, '');
+}
+
+/**
+ * Determine if we're running in a standard browser environment
+ *
+ * This allows axios to run in a web worker, and react-native.
+ * Both environments support XMLHttpRequest, but not fully standard globals.
+ *
+ * web workers:
+ *  typeof window -> undefined
+ *  typeof document -> undefined
+ *
+ * react-native:
+ *  navigator.product -> 'ReactNative'
+ */
+function isStandardBrowserEnv() {
+  if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+    return false;
+  }
+  return (
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined'
+  );
+}
+
+/**
+ * Iterate over an Array or an Object invoking a function for each item.
+ *
+ * If `obj` is an Array callback will be called passing
+ * the value, index, and complete array for each item.
+ *
+ * If 'obj' is an Object callback will be called passing
+ * the value, key, and complete object for each property.
+ *
+ * @param {Object|Array} obj The object to iterate
+ * @param {Function} fn The callback to invoke for each item
+ */
+function forEach(obj, fn) {
+  // Don't bother if no value provided
+  if (obj === null || typeof obj === 'undefined') {
+    return;
+  }
+
+  // Force an array if not already something iterable
+  if (typeof obj !== 'object') {
+    /*eslint no-param-reassign:0*/
+    obj = [obj];
+  }
+
+  if (isArray(obj)) {
+    // Iterate over array values
+    for (var i = 0, l = obj.length; i < l; i++) {
+      fn.call(null, obj[i], i, obj);
+    }
+  } else {
+    // Iterate over object keys
+    for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fn.call(null, obj[key], key, obj);
+      }
+    }
+  }
+}
+
+/**
+ * Accepts varargs expecting each argument to be an object, then
+ * immutably merges the properties of each object and returns result.
+ *
+ * When multiple objects contain the same key the later object in
+ * the arguments list will take precedence.
+ *
+ * Example:
+ *
+ * ```js
+ * var result = merge({foo: 123}, {foo: 456});
+ * console.log(result.foo); // outputs 456
+ * ```
+ *
+ * @param {Object} obj1 Object to merge
+ * @returns {Object} Result of all merge properties
+ */
+function merge(/* obj1, obj2, obj3, ... */) {
+  var result = {};
+  function assignValue(val, key) {
+    if (typeof result[key] === 'object' && typeof val === 'object') {
+      result[key] = merge(result[key], val);
+    } else {
+      result[key] = val;
+    }
+  }
+
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    forEach(arguments[i], assignValue);
+  }
+  return result;
+}
+
+/**
+ * Extends object a by mutably adding to it the properties of object b.
+ *
+ * @param {Object} a The object to be extended
+ * @param {Object} b The object to copy properties from
+ * @param {Object} thisArg The object to bind function to
+ * @return {Object} The resulting value of object a
+ */
+function extend(a, b, thisArg) {
+  forEach(b, function assignValue(val, key) {
+    if (thisArg && typeof val === 'function') {
+      a[key] = bind(val, thisArg);
+    } else {
+      a[key] = val;
+    }
+  });
+  return a;
+}
+
+module.exports = {
+  isArray: isArray,
+  isArrayBuffer: isArrayBuffer,
+  isBuffer: isBuffer,
+  isFormData: isFormData,
+  isArrayBufferView: isArrayBufferView,
+  isString: isString,
+  isNumber: isNumber,
+  isObject: isObject,
+  isUndefined: isUndefined,
+  isDate: isDate,
+  isFile: isFile,
+  isBlob: isBlob,
+  isFunction: isFunction,
+  isStream: isStream,
+  isURLSearchParams: isURLSearchParams,
+  isStandardBrowserEnv: isStandardBrowserEnv,
+  forEach: forEach,
+  merge: merge,
+  extend: extend,
+  trim: trim
+};
+
+
+/***/ }),
 
 /***/ "./node_modules/bootstrap-sass/assets/javascripts/bootstrap.js":
 /***/ (function(module, exports) {
@@ -2380,6 +4011,34 @@ if (typeof jQuery === 'undefined') {
   })
 
 }(jQuery);
+
+
+/***/ }),
+
+/***/ "./node_modules/is-buffer/index.js":
+/***/ (function(module, exports) {
+
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+module.exports = function (obj) {
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+}
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+}
 
 
 /***/ }),
@@ -29870,6 +31529,225 @@ return jQuery;
 
 /***/ }),
 
+/***/ "./node_modules/process/browser.js":
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+
+/***/ "./node_modules/webpack/buildin/global.js":
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/module.js":
 /***/ (function(module, exports) {
 
@@ -29911,13 +31789,10 @@ module.exports = function(module) {
 
 __webpack_require__("./resources/assets/js/bootstrap.js");
 
-__webpack_require__("./resources/assets/js/mdui.min.js");
-
 /***/ }),
 
 /***/ "./resources/assets/js/bootstrap.js":
 /***/ (function(module, exports, __webpack_require__) {
-
 
 window._ = __webpack_require__("./node_modules/lodash/lodash.js");
 
@@ -29957,1460 +31832,7 @@ if (token) {
   console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
-window.Vue = __webpack_require__("./node_modules/vue/dist/vue.common.js");
-
-/***/ }),
-
-/***/ "./resources/assets/js/mdui.min.js":
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/*!
- * mdui v0.4.1 (https://mdui.org)
- * Copyright 2016-2018 zdhxiong
- * Licensed under MIT
- */
-!function (t, e) {
-  "object" == ( false ? "undefined" : _typeof(exports)) && "undefined" != typeof module ? module.exports = e() :  true ? !(__WEBPACK_AMD_DEFINE_FACTORY__ = (e),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
-				__WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : t.mdui = e();
-}(this, function () {
-  "use strict";
-  var t = {};!function () {
-    var t = 0;window.requestAnimationFrame || (window.requestAnimationFrame = window.webkitRequestAnimationFrame, window.cancelAnimationFrame = window.webkitCancelAnimationFrame), window.requestAnimationFrame || (window.requestAnimationFrame = function (e, n) {
-      var i = new Date().getTime(),
-          o = Math.max(0, 16.7 - (i - t)),
-          a = window.setTimeout(function () {
-        e(i + o);
-      }, o);return t = i + o, a;
-    }), window.cancelAnimationFrame || (window.cancelAnimationFrame = function (t) {
-      clearTimeout(t);
-    });
-  }();var e = function (t, e, n) {
-    function i(t) {
-      return "number" == typeof t.length;
-    }function o(t, e) {
-      var n, o;if (i(t)) {
-        for (n = 0; n < t.length; n++) {
-          if (!1 === e.call(t[n], n, t[n])) return t;
-        }
-      } else for (o in t) {
-        if (t.hasOwnProperty(o) && !1 === e.call(t[o], o, t[o])) return t;
-      }return t;
-    }function a(t, e) {
-      var i,
-          a = [];return o(t, function (t, o) {
-        null !== (i = e(o, t)) && i !== n && a.push(i);
-      }), x.apply([], a);
-    }function s(t, e) {
-      return o(e, function (e, n) {
-        t.push(n);
-      }), t;
-    }function r(t) {
-      for (var e = [], n = 0; n < t.length; n++) {
-        -1 === e.indexOf(t[n]) && e.push(t[n]);
-      }return e;
-    }function c(t) {
-      return null === t;
-    }function d(t, e) {
-      return t.nodeName && t.nodeName.toLowerCase() === e.toLowerCase();
-    }function u(t) {
-      return "function" == typeof t;
-    }function l(t) {
-      return "string" == typeof t;
-    }function f(t) {
-      return "object" == (typeof t === "undefined" ? "undefined" : _typeof(t));
-    }function p(t) {
-      return f(t) && !c(t);
-    }function h(t) {
-      return t && t === t.window;
-    }function m(t) {
-      return t && t.nodeType === t.DOCUMENT_NODE;
-    }function v(t) {
-      var n, i;return w[t] || (n = e.createElement(t), e.body.appendChild(n), i = getComputedStyle(n, "").getPropertyValue("display"), n.parentNode.removeChild(n), "none" === i && (i = "block"), w[t] = i), w[t];
-    }var g = [],
-        b = g.slice,
-        x = g.concat,
-        y = Array.isArray,
-        $ = e.documentElement,
-        w = {},
-        C = function C(t) {
-      for (var e = this, n = 0; n < t.length; n++) {
-        e[n] = t[n];
-      }return e.length = t.length, this;
-    },
-        k = function k(n) {
-      var i = [],
-          o = 0;if (!n) return new C(i);if (n instanceof C) return n;if (l(n)) {
-        var a, s;if ("<" === (n = n.trim())[0] && ">" === n[n.length - 1]) {
-          var r = "div";for (0 === n.indexOf("<li") && (r = "ul"), 0 === n.indexOf("<tr") && (r = "tbody"), 0 !== n.indexOf("<td") && 0 !== n.indexOf("<th") || (r = "tr"), 0 === n.indexOf("<tbody") && (r = "table"), 0 === n.indexOf("<option") && (r = "select"), (s = e.createElement(r)).innerHTML = n, o = 0; o < s.childNodes.length; o++) {
-            i.push(s.childNodes[o]);
-          }
-        } else for (a = "#" !== n[0] || n.match(/[ .<>:~]/) ? e.querySelectorAll(n) : [e.getElementById(n.slice(1))], o = 0; o < a.length; o++) {
-          a[o] && i.push(a[o]);
-        }
-      } else {
-        if (u(n)) return k(e).ready(n);if (n.nodeType || n === t || n === e) i.push(n);else if (n.length > 0 && n[0].nodeType) for (o = 0; o < n.length; o++) {
-          i.push(n[o]);
-        }
-      }return new C(i);
-    };k.fn = C.prototype, k.extend = k.fn.extend = function (t) {
-      if (t === n) return this;var e,
-          i,
-          o,
-          a = arguments.length;if (1 === a) {
-        for (e in t) {
-          t.hasOwnProperty(e) && (this[e] = t[e]);
-        }return this;
-      }for (i = 1; i < a; i++) {
-        o = arguments[i];for (e in o) {
-          o.hasOwnProperty(e) && (t[e] = o[e]);
-        }
-      }return t;
-    }, k.extend({ each: o, merge: s, unique: r, map: a, contains: function contains(t, e) {
-        return t && !e ? $.contains(t) : t !== e && t.contains(e);
-      }, param: function param(t) {
-        function e(t, i) {
-          var a;p(i) ? o(i, function (n, o) {
-            a = y(i) && !p(o) ? "" : n, e(t + "[" + a + "]", o);
-          }) : (a = c(i) || "" === i ? "" : "=" + encodeURIComponent(i), n.push(encodeURIComponent(t) + a));
-        }if (!p(t)) return "";var n = [];return o(t, function (t, n) {
-          e(t, n);
-        }), n.join("&");
-      } }), k.fn.extend({ each: function each(t) {
-        return o(this, t);
-      }, map: function map(t) {
-        return new C(a(this, function (e, n) {
-          return t.call(e, n, e);
-        }));
-      }, get: function get(t) {
-        return t === n ? b.call(this) : this[t >= 0 ? t : t + this.length];
-      }, slice: function slice(t) {
-        return new C(b.apply(this, arguments));
-      }, filter: function filter(t) {
-        if (u(t)) return this.map(function (e, i) {
-          return t.call(i, e, i) ? i : n;
-        });var e = k(t);return this.map(function (t, i) {
-          return e.index(i) > -1 ? i : n;
-        });
-      }, not: function not(t) {
-        var e = this.filter(t);return this.map(function (t, i) {
-          return e.index(i) > -1 ? n : i;
-        });
-      }, offset: function offset() {
-        if (this[0]) {
-          var e = this[0].getBoundingClientRect();return { left: e.left + t.pageXOffset, top: e.top + t.pageYOffset, width: e.width, height: e.height };
-        }return null;
-      }, offsetParent: function offsetParent() {
-        return this.map(function () {
-          for (var t = this.offsetParent; t && "static" === k(t).css("position");) {
-            t = t.offsetParent;
-          }return t || $;
-        });
-      }, position: function position() {
-        var t = this;if (!t[0]) return null;var e,
-            n,
-            i = { top: 0, left: 0 };return "fixed" === t.css("position") ? n = t[0].getBoundingClientRect() : (e = t.offsetParent(), n = t.offset(), d(e[0], "html") || (i = e.offset()), i = { top: i.top + e.css("borderTopWidth"), left: i.left + e.css("borderLeftWidth") }), { top: n.top - i.top - t.css("marginTop"), left: n.left - i.left - t.css("marginLeft"), width: n.width, height: n.height };
-      }, show: function show() {
-        return this.each(function () {
-          "none" === this.style.display && (this.style.display = ""), "none" === t.getComputedStyle(this, "").getPropertyValue("display") && (this.style.display = v(this.nodeName));
-        });
-      }, hide: function hide() {
-        return this.each(function () {
-          this.style.display = "none";
-        });
-      }, toggle: function toggle() {
-        return this.each(function () {
-          this.style.display = "none" === this.style.display ? "" : "none";
-        });
-      }, hasClass: function hasClass(t) {
-        return !(!this[0] || !t) && this[0].classList.contains(t);
-      }, removeAttr: function removeAttr(t) {
-        return this.each(function () {
-          this.removeAttribute(t);
-        });
-      }, removeProp: function removeProp(t) {
-        return this.each(function () {
-          try {
-            delete this[t];
-          } catch (t) {}
-        });
-      }, eq: function eq(t) {
-        var e = -1 === t ? this.slice(t) : this.slice(t, +t + 1);return new C(e);
-      }, first: function first() {
-        return this.eq(0);
-      }, last: function last() {
-        return this.eq(-1);
-      }, index: function index(t) {
-        return t ? l(t) ? k(t).eq(0).parent().children().get().indexOf(this[0]) : this.get().indexOf(t) : this.eq(0).parent().children().get().indexOf(this[0]);
-      }, is: function is(o) {
-        var a = this[0];if (!a || o === n || null === o) return !1;var s, r;if (l(o)) return a !== e && a !== t && (a.matches || a.matchesSelector || a.webkitMatchesSelector || a.mozMatchesSelector || a.oMatchesSelector || a.msMatchesSelector).call(a, o);if (o === e || o === t) return a === o;if (o.nodeType || i(o)) {
-          for (s = o.nodeType ? [o] : o, r = 0; r < s.length; r++) {
-            if (s[r] === a) return !0;
-          }return !1;
-        }return !1;
-      }, find: function find(t) {
-        var e = [];return this.each(function (n, i) {
-          s(e, i.querySelectorAll(t));
-        }), new C(e);
-      }, children: function children(t) {
-        var e = [];return this.each(function (n, i) {
-          o(i.childNodes, function (n, i) {
-            if (1 !== i.nodeType) return !0;(!t || t && k(i).is(t)) && e.push(i);
-          });
-        }), new C(r(e));
-      }, has: function has(t) {
-        var e = l(t) ? this.find(t) : k(t),
-            n = e.length;return this.filter(function () {
-          for (var t = 0; t < n; t++) {
-            if (k.contains(this, e[t])) return !0;
-          }
-        });
-      }, siblings: function siblings(t) {
-        return this.prevAll(t).add(this.nextAll(t));
-      }, closest: function closest(t) {
-        var e = this;return e.is(t) || (e = e.parents(t).eq(0)), e;
-      }, remove: function remove() {
-        return this.each(function (t, e) {
-          e.parentNode && e.parentNode.removeChild(e);
-        });
-      }, add: function add(t) {
-        return new C(r(s(this.get(), k(t))));
-      }, empty: function empty() {
-        return this.each(function () {
-          this.innerHTML = "";
-        });
-      }, clone: function clone() {
-        return this.map(function () {
-          return this.cloneNode(!0);
-        });
-      }, replaceWith: function replaceWith(t) {
-        return this.before(t).remove();
-      }, serializeArray: function serializeArray() {
-        var t,
-            e,
-            n = [],
-            i = this[0];return i && i.elements ? (k(b.call(i.elements)).each(function () {
-          t = k(this), e = t.attr("type"), "fieldset" === this.nodeName.toLowerCase() || this.disabled || -1 !== ["submit", "reset", "button"].indexOf(e) || -1 !== ["radio", "checkbox"].indexOf(e) && !this.checked || n.push({ name: t.attr("name"), value: t.val() });
-        }), n) : n;
-      }, serialize: function serialize() {
-        var t = [];return o(this.serializeArray(), function (e, n) {
-          t.push(encodeURIComponent(n.name) + "=" + encodeURIComponent(n.value));
-        }), t.join("&");
-      } }), o(["val", "html", "text"], function (t, e) {
-      var i = { 0: "value", 1: "innerHTML", 2: "textContent" },
-          o = { 0: n, 1: n, 2: null };k.fn[e] = function (e) {
-        return e === n ? this[0] ? this[0][i[t]] : o[t] : this.each(function (n, o) {
-          o[i[t]] = e;
-        });
-      };
-    }), o(["attr", "prop", "css"], function (e, i) {
-      var a = function a(t, n, i) {
-        0 === e ? t.setAttribute(n, i) : 1 === e ? t[n] = i : t.style[n] = i;
-      },
-          s = function s(i, o) {
-        if (!i) return n;return 0 === e ? i.getAttribute(o) : 1 === e ? i[o] : t.getComputedStyle(i, null).getPropertyValue(o);
-      };k.fn[i] = function (t, e) {
-        var n = arguments.length;return 1 === n && l(t) ? s(this[0], t) : this.each(function (i, s) {
-          2 === n ? a(s, t, e) : o(t, function (t, e) {
-            a(s, t, e);
-          });
-        });
-      };
-    }), o(["add", "remove", "toggle"], function (t, e) {
-      k.fn[e + "Class"] = function (t) {
-        if (!t) return this;var n = t.split(" ");return this.each(function (t, i) {
-          o(n, function (t, n) {
-            i.classList[e](n);
-          });
-        });
-      };
-    }), o({ Width: "width", Height: "height" }, function (e, i) {
-      k.fn[i] = function (o) {
-        if (o === n) {
-          var a = this[0];if (h(a)) return a["inner" + e];if (m(a)) return a.documentElement["scroll" + e];var s = k(a),
-              r = 0,
-              c = "width" === i;return "ActiveXObject" in t && "border-box" === s.css("box-sizing") && (r = parseFloat(s.css("padding-" + (c ? "left" : "top"))) + parseFloat(s.css("padding-" + (c ? "right" : "bottom"))) + parseFloat(s.css("border-" + (c ? "left" : "top") + "-width")) + parseFloat(s.css("border-" + (c ? "right" : "bottom") + "-width"))), parseFloat(k(a).css(i)) + r;
-        }return isNaN(Number(o)) || "" === o || (o += "px"), this.css(i, o);
-      };
-    }), o({ Width: "width", Height: "height" }, function (t, e) {
-      k.fn["inner" + t] = function () {
-        var t = this[e](),
-            n = k(this[0]);return "border-box" !== n.css("box-sizing") && (t += parseFloat(n.css("padding-" + ("width" === e ? "left" : "top"))), t += parseFloat(n.css("padding-" + ("width" === e ? "right" : "bottom")))), t;
-      };
-    });var O = function O(t, e, n, i) {
-      var o,
-          a = [];return t.each(function (t, s) {
-        for (o = s[i]; o;) {
-          if (2 === n) {
-            if (!e || e && k(o).is(e)) break;a.push(o);
-          } else {
-            if (0 === n) {
-              (!e || e && k(o).is(e)) && a.push(o);break;
-            }(!e || e && k(o).is(e)) && a.push(o);
-          }o = o[i];
-        }
-      }), new C(r(a));
-    };return o(["", "All", "Until"], function (t, e) {
-      k.fn["prev" + e] = function (e) {
-        var n = 0 === t ? this : k(this.get().reverse());return O(n, e, t, "previousElementSibling");
-      };
-    }), o(["", "All", "Until"], function (t, e) {
-      k.fn["next" + e] = function (e) {
-        return O(this, e, t, "nextElementSibling");
-      };
-    }), o(["", "s", "sUntil"], function (t, e) {
-      k.fn["parent" + e] = function (e) {
-        var n = 0 === t ? this : k(this.get().reverse());return O(n, e, t, "parentNode");
-      };
-    }), o(["append", "prepend"], function (t, n) {
-      k.fn[n] = function (n) {
-        var i,
-            a = this.length > 1;if (l(n)) {
-          var s = e.createElement("div");s.innerHTML = n, i = b.call(s.childNodes);
-        } else i = k(n).get();return 1 === t && i.reverse(), this.each(function (e, n) {
-          o(i, function (i, o) {
-            a && e > 0 && (o = o.cloneNode(!0)), 0 === t ? n.appendChild(o) : n.insertBefore(o, n.childNodes[0]);
-          });
-        });
-      };
-    }), o(["insertBefore", "insertAfter"], function (t, e) {
-      k.fn[e] = function (e) {
-        var n = k(e);return this.each(function (e, i) {
-          n.each(function (e, o) {
-            o.parentNode.insertBefore(1 === n.length ? i : i.cloneNode(!0), 0 === t ? o : o.nextSibling);
-          });
-        });
-      };
-    }), o({ appendTo: "append", prependTo: "prepend", before: "insertBefore", after: "insertAfter", replaceAll: "replaceWith" }, function (t, e) {
-      k.fn[t] = function (t) {
-        return k(t)[e](this), this;
-      };
-    }), function () {
-      var t = "mduiElementDataStorage";k.extend({ data: function data(e, i, a) {
-          var s = {};if (a !== n) s[i] = a;else {
-            if (!p(i)) {
-              if (i === n) {
-                var r = {};return o(e.attributes, function (t, e) {
-                  var n = e.name;if (0 === n.indexOf("data-")) {
-                    var i = n.slice(5).replace(/-./g, function (t) {
-                      return t.charAt(1).toUpperCase();
-                    });r[i] = e.value;
-                  }
-                }), e[t] && o(e[t], function (t, e) {
-                  r[t] = e;
-                }), r;
-              }if (e[t] && i in e[t]) return e[t][i];var c = e.getAttribute("data-" + i);return c || n;
-            }s = i;
-          }e[t] || (e[t] = {}), o(s, function (n, i) {
-            e[t][n] = i;
-          });
-        }, removeData: function removeData(e, n) {
-          e[t] && e[t][n] && (e[t][n] = null, delete e.mduiElementDataStorage[n]);
-        } }), k.fn.extend({ data: function data(t, e) {
-          return e === n ? p(t) ? this.each(function (e, n) {
-            k.data(n, t);
-          }) : this[0] ? k.data(this[0], t) : n : this.each(function (n, i) {
-            k.data(i, t, e);
-          });
-        }, removeData: function removeData(t) {
-          return this.each(function (e, n) {
-            k.removeData(n, t);
-          });
-        } });
-    }(), function () {
-      function i(t, e, i, o, a) {
-        var r = s(t);c[r] || (c[r] = []);var d = !1;p(o) && o.useCapture && (d = !0), e.split(" ").forEach(function (e) {
-          var s = { e: e, fn: i, sel: a, i: c[r].length },
-              u = function u(t, e) {
-            !1 === i.apply(e, t._detail === n ? [t] : [t].concat(t._detail)) && (t.preventDefault(), t.stopPropagation());
-          },
-              l = s.proxy = function (e) {
-            e._data = o, a ? k(t).find(a).get().reverse().forEach(function (t) {
-              (t === e.target || k.contains(t, e.target)) && u(e, t);
-            }) : u(e, t);
-          };c[r].push(s), t.addEventListener(s.e, l, d);
-        });
-      }function a(t, e, n, i) {
-        (e || "").split(" ").forEach(function (e) {
-          r(t, e, n, i).forEach(function (e) {
-            delete c[s(t)][e.i], t.removeEventListener(e.e, e.proxy, !1);
-          });
-        });
-      }function s(t) {
-        return t._elementId || (t._elementId = d++);
-      }function r(t, e, n, i) {
-        return (c[s(t)] || []).filter(function (t) {
-          return t && (!e || t.e === e) && (!n || t.fn.toString() === n.toString()) && (!i || t.sel === i);
-        });
-      }var c = {},
-          d = 1,
-          f = function f() {
-        return !1;
-      };k.fn.extend({ ready: function ready(t) {
-          return (/complete|loaded|interactive/.test(e.readyState) && e.body ? t(k) : e.addEventListener("DOMContentLoaded", function () {
-              t(k);
-            }, !1), this
-          );
-        }, on: function on(t, e, a, _s, r) {
-          var c = this;if (t && !l(t)) return o(t, function (t, n) {
-            c.on(t, e, a, n);
-          }), c;if (l(e) || u(_s) || !1 === _s || (_s = a, a = e, e = n), (u(a) || !1 === a) && (_s = a, a = n), !1 === _s && (_s = f), 1 === r) {
-            var d = _s;_s = function s() {
-              return c.off(t, e, _s), d.apply(this, arguments);
-            };
-          }return this.each(function () {
-            i(this, t, _s, a, e);
-          });
-        }, one: function one(t, e, n, i) {
-          var a = this;return l(t) ? t.split(" ").forEach(function (t) {
-            a.on(t, e, n, i, 1);
-          }) : o(t, function (t, i) {
-            t.split(" ").forEach(function (t) {
-              a.on(t, e, n, i, 1);
-            });
-          }), this;
-        }, off: function off(t, e, i) {
-          var s = this;return t && !l(t) ? (o(t, function (t, n) {
-            s.off(t, e, n);
-          }), s) : (l(e) || u(i) || !1 === i || (i = e, e = n), !1 === i && (i = f), s.each(function () {
-            a(this, t, i, e);
-          }));
-        }, trigger: function trigger(n, i) {
-          if (l(n)) {
-            var o;if (["click", "mousedown", "mouseup", "mousemove"].indexOf(n) > -1) try {
-              o = new MouseEvent(n, { bubbles: !0, cancelable: !0 });
-            } catch (i) {
-              (o = e.createEvent("MouseEvent")).initMouseEvent(n, !0, !0, t, 0, 0, 0, 0, 0, !1, !1, !1, !1, 0, null);
-            } else try {
-              o = new CustomEvent(n, { detail: i, bubbles: !0, cancelable: !0 });
-            } catch (t) {
-              (o = e.createEvent("CustomEvent")).initCustomEvent(n, !0, !0, i);
-            }return o._detail = i, this.each(function () {
-              this.dispatchEvent(o);
-            });
-          }
-        } });
-    }(), function () {
-      var i = {},
-          a = 0,
-          s = { ajaxStart: "start.mdui.ajax", ajaxSuccess: "success.mdui.ajax", ajaxError: "error.mdui.ajax", ajaxComplete: "complete.mdui.ajax" },
-          r = function r(t) {
-        return ["GET", "HEAD"].indexOf(t) >= 0;
-      },
-          c = function c(t, e) {
-        return (t + "&" + e).replace(/[&?]{1,2}/, "?");
-      };k.extend({ ajaxSetup: function ajaxSetup(t) {
-          k.extend(i, t || {});
-        }, ajax: function ajax(d) {
-          function f(t, n) {
-            d.global && k(e).trigger(t, n);
-          }function p(t) {
-            var e,
-                n,
-                i = arguments;t && (t in g && (e = g[t](i[1], i[2], i[3], i[4])), d[t] && (n = d[t](i[1], i[2], i[3], i[4])), "beforeSend" !== t || !1 !== e && !1 !== n || (v = !0));
-          }var h = { method: "GET", data: !1, processData: !0, async: !0, cache: !0, username: "", password: "", headers: {}, xhrFields: {}, statusCode: {}, dataType: "text", jsonp: "callback", jsonpCallback: function jsonpCallback() {
-              return "mduijsonp_" + Date.now() + "_" + (a += 1);
-            }, contentType: "application/x-www-form-urlencoded", timeout: 0, global: !0 },
-              m = ["beforeSend", "success", "error", "statusCode", "complete"],
-              v = !1,
-              g = i,
-              b = {};o(g, function (t, e) {
-            m.indexOf(t) < 0 && (h[t] = e);
-          });var x = (d = k.extend({}, h, d)).method = d.method.toUpperCase();d.url || (d.url = t.location.toString());var y;if (y = (r(x) || d.processData) && d.data && [ArrayBuffer, Blob, Document, FormData].indexOf(d.data.constructor) < 0 ? l(d.data) ? d.data : k.param(d.data) : d.data, r(x) && y && (d.url = c(d.url, y), y = null), "jsonp" === d.dataType) {
-            var $ = u(d.jsonpCallback) ? d.jsonpCallback() : d.jsonpCallback,
-                w = c(d.url, d.jsonp + "=" + $);if (b.options = d, f(s.ajaxStart, b), p("beforeSend", null), v) return;var C,
-                O = e.createElement("script");return O.type = "text/javascript", O.onerror = function () {
-              C && clearTimeout(C), f(s.ajaxError, b), p("error", null, "scripterror"), f(s.ajaxComplete, b), p("complete", null, "scripterror");
-            }, O.src = w, t[$] = function (e) {
-              C && clearTimeout(C), b.data = e, f(s.ajaxSuccess, b), p("success", e, "success", null), k(O).remove(), O = null, delete t[$];
-            }, k("head").append(O), void (d.timeout > 0 && (C = setTimeout(function () {
-              k(O).remove(), O = null, f(s.ajaxError, b), p("error", null, "timeout");
-            }, d.timeout)));
-          }r(x) && !d.cache && (d.url = c(d.url, "_=" + Date.now()));var T = new XMLHttpRequest();T.open(x, d.url, d.async, d.username, d.password), (y && !r(x) && !1 !== d.contentType || d.contentType) && T.setRequestHeader("Content-Type", d.contentType), "json" === d.dataType && T.setRequestHeader("Accept", "application/json, text/javascript"), d.headers && o(d.headers, function (t, e) {
-            T.setRequestHeader(t, e);
-          }), d.crossDomain === n && (d.crossDomain = /^([\w-]+:)?\/\/([^\/]+)/.test(d.url) && RegExp.$2 !== t.location.host), d.crossDomain || T.setRequestHeader("X-Requested-With", "XMLHttpRequest"), d.xhrFields && o(d.xhrFields, function (t, e) {
-            T[t] = e;
-          }), b.xhr = T, b.options = d;var E;return T.onload = function () {
-            E && clearTimeout(E);var t,
-                e = T.status >= 200 && T.status < 300 || 0 === T.status;if (e) {
-              t = 204 === T.status || "HEAD" === x ? "nocontent" : 304 === T.status ? "notmodified" : "success";var n;if ("json" === d.dataType) {
-                try {
-                  b.data = n = JSON.parse(T.responseText);
-                } catch (e) {
-                  t = "parsererror", f(s.ajaxError, b), p("error", T, t);
-                }"parsererror" !== t && (f(s.ajaxSuccess, b), p("success", n, t, T));
-              } else b.data = n = "text" === T.responseType || "" === T.responseType ? T.responseText : T.response, f(s.ajaxSuccess, b), p("success", n, t, T);
-            } else t = "error", f(s.ajaxError, b), p("error", T, t);o([g.statusCode, d.statusCode], function (i, o) {
-              o && o[T.status] && (e ? o[T.status](n, t, T) : o[T.status](T, t));
-            }), f(s.ajaxComplete, b), p("complete", T, t);
-          }, T.onerror = function () {
-            E && clearTimeout(E), f(s.ajaxError, b), p("error", T, T.statusText), f(s.ajaxComplete, b), p("complete", T, "error");
-          }, T.onabort = function () {
-            var t = "abort";E && (t = "timeout", clearTimeout(E)), f(s.ajaxError, b), p("error", T, t), f(s.ajaxComplete, b), p("complete", T, t);
-          }, f(s.ajaxStart, b), p("beforeSend", T), v ? T : (d.timeout > 0 && (E = setTimeout(function () {
-            T.abort();
-          }, d.timeout)), T.send(y), T);
-        } }), o(s, function (t, e) {
-        k.fn[t] = function (t) {
-          return this.on(e, function (e, n) {
-            t(e, n.xhr, n.options, n.data);
-          });
-        };
-      });
-    }(), k;
-  }(window, document),
-      n = e(document),
-      i = e(window),
-      o = {};!function () {
-    var t = [];o.queue = function (e, n) {
-      if (void 0 === t[e] && (t[e] = []), void 0 === n) return t[e];t[e].push(n);
-    }, o.dequeue = function (e) {
-      void 0 !== t[e] && t[e].length && t[e].shift()();
-    };
-  }();var a = { touches: 0, isAllow: function isAllow(t) {
-      var e = !0;return a.touches && ["mousedown", "mouseup", "mousemove", "click", "mouseover", "mouseout", "mouseenter", "mouseleave"].indexOf(t.type) > -1 && (e = !1), e;
-    }, register: function register(t) {
-      "touchstart" === t.type ? a.touches += 1 : ["touchmove", "touchend", "touchcancel"].indexOf(t.type) > -1 && setTimeout(function () {
-        a.touches && (a.touches -= 1);
-      }, 500);
-    }, start: "touchstart mousedown", move: "touchmove mousemove", end: "touchend mouseup", cancel: "touchcancel mouseleave", unlock: "touchend touchmove touchcancel" };e(function () {
-    setTimeout(function () {
-      e("body").addClass("mdui-loaded");
-    }, 0);
-  });var s = function s(t) {
-    var e = {};if (null === t || !t) return e;if ("object" == (typeof t === "undefined" ? "undefined" : _typeof(t))) return t;var n = t.indexOf("{");try {
-      e = new Function("", "var json = " + t.substr(n) + "; return JSON.parse(JSON.stringify(json));")();
-    } catch (t) {}return e;
-  },
-      r = function r(t, n, i, o, a) {
-    a || (a = {}), a.inst = i;var s = t + ".mdui." + n;"undefined" != typeof jQuery && jQuery(o).trigger(s, a), e(o).trigger(s, a);
-  };e.fn.extend({ reflow: function reflow() {
-      return this.each(function () {
-        return this.clientLeft;
-      });
-    }, transition: function transition(t) {
-      return "string" != typeof t && (t += "ms"), this.each(function () {
-        this.style.webkitTransitionDuration = t, this.style.transitionDuration = t;
-      });
-    }, transitionEnd: function transitionEnd(t) {
-      function e(a) {
-        if (a.target === this) for (t.call(this, a), n = 0; n < i.length; n++) {
-          o.off(i[n], e);
-        }
-      }var n,
-          i = ["webkitTransitionEnd", "transitionend"],
-          o = this;if (t) for (n = 0; n < i.length; n++) {
-        o.on(i[n], e);
-      }return this;
-    }, transformOrigin: function transformOrigin(t) {
-      return this.each(function () {
-        this.style.webkitTransformOrigin = t, this.style.transformOrigin = t;
-      });
-    }, transform: function transform(t) {
-      return this.each(function () {
-        this.style.webkitTransform = t, this.style.transform = t;
-      });
-    } }), e.extend({ showOverlay: function showOverlay(t) {
-      var n = e(".mdui-overlay");n.length ? (n.data("isDeleted", 0), void 0 !== t && n.css("z-index", t)) : (void 0 === t && (t = 2e3), n = e('<div class="mdui-overlay">').appendTo(document.body).reflow().css("z-index", t));var i = n.data("overlay-level") || 0;return n.data("overlay-level", ++i).addClass("mdui-overlay-show");
-    }, hideOverlay: function hideOverlay(t) {
-      var n = e(".mdui-overlay");if (n.length) {
-        var i = t ? 1 : n.data("overlay-level");i > 1 ? n.data("overlay-level", --i) : n.data("overlay-level", 0).removeClass("mdui-overlay-show").data("isDeleted", 1).transitionEnd(function () {
-          n.data("isDeleted") && n.remove();
-        });
-      }
-    }, lockScreen: function lockScreen() {
-      var t = e("body"),
-          n = t.width();t.addClass("mdui-locked").width(n);var i = t.data("lockscreen-level") || 0;t.data("lockscreen-level", ++i);
-    }, unlockScreen: function unlockScreen(t) {
-      var n = e("body"),
-          i = t ? 1 : n.data("lockscreen-level");i > 1 ? n.data("lockscreen-level", --i) : n.data("lockscreen-level", 0).removeClass("mdui-locked").width("");
-    }, throttle: function throttle(t, e) {
-      var n = null;return (!e || e < 16) && (e = 16), function () {
-        var i = this,
-            o = arguments;null === n && (n = setTimeout(function () {
-          t.apply(i, o), n = null;
-        }, e));
-      };
-    } }), function () {
-    var t = {};e.extend({ guid: function guid(e) {
-        function n() {
-          return Math.floor(65536 * (1 + Math.random())).toString(16).substring(1);
-        }if (void 0 !== e && void 0 !== t[e]) return t[e];var i = n() + n() + "-" + n() + "-" + n() + "-" + n() + "-" + n() + n() + n();return void 0 !== e && (t[e] = i), i;
-      } });
-  }(), function () {
-    function n(t, n, i, o, a) {
-      var s = e(i),
-          r = s.data("mdui.mutation");r || (r = [], s.data("mdui.mutation", r)), -1 === r.indexOf(t) && (r.push(t), n.call(i, o, a));
-    }var i = {};e.fn.extend({ mutation: function mutation() {
-        return this.each(function (t, o) {
-          var a = e(this);e.each(i, function (e, i) {
-            a.is(e) && n(e, i, a[0], t, o), a.find(e).each(function (t, o) {
-              n(e, i, this, t, o);
-            });
-          });
-        });
-      } }), t.mutation = function (t, o) {
-      "string" == typeof t && "function" == typeof o ? (i[t] = o, e(t).each(function (e, i) {
-        n(t, o, this, e, i);
-      })) : e(document).mutation();
-    };
-  }(), t.Headroom = function () {
-    function t(t, i) {
-      var o = this;if (o.$headroom = e(t).eq(0), o.$headroom.length) {
-        var a = o.$headroom.data("mdui.headroom");if (a) return a;o.options = e.extend({}, n, i || {});var s = o.options.tolerance;s !== Object(s) && (o.options.tolerance = { down: s, up: s }), o._init();
-      }
-    }var n = { tolerance: 5, offset: 0, initialClass: "mdui-headroom", pinnedClass: "mdui-headroom-pinned-top", unpinnedClass: "mdui-headroom-unpinned-top" };t.prototype._init = function () {
-      var t = this;t.state = "pinned", t.$headroom.addClass(t.options.initialClass).removeClass(t.options.pinnedClass + " " + t.options.unpinnedClass), t.inited = !1, t.lastScrollY = 0, t._attachEvent();
-    }, t.prototype._attachEvent = function () {
-      var t = this;t.inited || (t.lastScrollY = window.pageYOffset, t.inited = !0, i.on("scroll", function () {
-        t._scroll();
-      }));
-    }, t.prototype._scroll = function () {
-      var t = this;t.rafId = window.requestAnimationFrame(function () {
-        var e = window.pageYOffset,
-            n = e > t.lastScrollY ? "down" : "up",
-            i = Math.abs(e - t.lastScrollY) >= t.options.tolerance[n];e > t.lastScrollY && e >= t.options.offset && i ? t.unpin() : (e < t.lastScrollY && i || e <= t.options.offset) && t.pin(), t.lastScrollY = e;
-      });
-    };var o = function o(t) {
-      "pinning" === t.state && (t.state = "pinned", r("pinned", "headroom", t, t.$headroom)), "unpinning" === t.state && (t.state = "unpinned", r("unpinned", "headroom", t, t.$headroom));
-    };return t.prototype.pin = function () {
-      var t = this;"pinning" !== t.state && "pinned" !== t.state && t.$headroom.hasClass(t.options.initialClass) && (r("pin", "headroom", t, t.$headroom), t.state = "pinning", t.$headroom.removeClass(t.options.unpinnedClass).addClass(t.options.pinnedClass).transitionEnd(function () {
-        o(t);
-      }));
-    }, t.prototype.unpin = function () {
-      var t = this;"unpinning" !== t.state && "unpinned" !== t.state && t.$headroom.hasClass(t.options.initialClass) && (r("unpin", "headroom", t, t.$headroom), t.state = "unpinning", t.$headroom.removeClass(t.options.pinnedClass).addClass(t.options.unpinnedClass).transitionEnd(function () {
-        o(t);
-      }));
-    }, t.prototype.enable = function () {
-      var t = this;t.inited || t._init();
-    }, t.prototype.disable = function () {
-      var t = this;t.inited && (t.inited = !1, t.$headroom.removeClass([t.options.initialClass, t.options.pinnedClass, t.options.unpinnedClass].join(" ")), i.off("scroll", function () {
-        t._scroll();
-      }), window.cancelAnimationFrame(t.rafId));
-    }, t.prototype.getState = function () {
-      return this.state;
-    }, t;
-  }(), e(function () {
-    t.mutation("[mdui-headroom]", function () {
-      var n = e(this),
-          i = s(n.attr("mdui-headroom")),
-          o = n.data("mdui.headroom");o || (o = new t.Headroom(n, i), n.data("mdui.headroom", o));
-    });
-  });var c = function () {
-    function t(t, i, o) {
-      var a = this;a.ns = o;var s = "mdui-" + a.ns + "-item";if (a.class_item = s, a.class_item_open = s + "-open", a.class_header = s + "-header", a.class_body = s + "-body", a.$collapse = e(t).eq(0), a.$collapse.length) {
-        var r = a.$collapse.data("mdui." + a.ns);if (r) return r;a.options = e.extend({}, n, i || {}), a.$collapse.on("click", "." + a.class_header, function () {
-          var t = e(this).parent("." + a.class_item);a.$collapse.children(t).length && a.toggle(t);
-        }), a.$collapse.on("click", "[mdui-" + a.ns + "-item-close]", function () {
-          var t = e(this).parents("." + a.class_item).eq(0);a._isOpen(t) && a.close(t);
-        });
-      }
-    }var n = { accordion: !1 };t.prototype._isOpen = function (t) {
-      return t.hasClass(this.class_item_open);
-    }, t.prototype._getItem = function (t) {
-      var n = this;return parseInt(t) === t ? n.$collapse.children("." + n.class_item).eq(t) : e(t).eq(0);
-    };var i = function i(t, e, n) {
-      t._isOpen(n) ? (e.transition(0).height("auto").reflow().transition(""), r("opened", t.ns, t, n[0])) : (e.height(""), r("closed", t.ns, t, n[0]));
-    };return t.prototype.open = function (t) {
-      var n = this,
-          o = n._getItem(t);if (!n._isOpen(o)) {
-        n.options.accordion && n.$collapse.children("." + n.class_item_open).each(function () {
-          var t = e(this);t !== o && n.close(t);
-        });var a = o.children("." + n.class_body);a.height(a[0].scrollHeight).transitionEnd(function () {
-          i(n, a, o);
-        }), r("open", n.ns, n, o[0]), o.addClass(n.class_item_open);
-      }
-    }, t.prototype.close = function (t) {
-      var e = this,
-          n = e._getItem(t);if (e._isOpen(n)) {
-        var o = n.children("." + e.class_body);r("close", e.ns, e, n[0]), n.removeClass(e.class_item_open), o.transition(0).height(o[0].scrollHeight).reflow().transition("").height("").transitionEnd(function () {
-          i(e, o, n);
-        });
-      }
-    }, t.prototype.toggle = function (t) {
-      var e = this,
-          n = e._getItem(t);e._isOpen(n) ? e.close(n) : e.open(n);
-    }, t.prototype.openAll = function () {
-      var t = this;t.$collapse.children("." + t.class_item).each(function () {
-        var n = e(this);t._isOpen(n) || t.open(n);
-      });
-    }, t.prototype.closeAll = function () {
-      var t = this;t.$collapse.children("." + t.class_item).each(function () {
-        var n = e(this);t._isOpen(n) && t.close(n);
-      });
-    }, t;
-  }();return t.Collapse = function () {
-    return function (t, e) {
-      return new c(t, e, "collapse");
-    };
-  }(), e(function () {
-    t.mutation("[mdui-collapse]", function () {
-      var n = e(this),
-          i = n.data("mdui.collapse");if (!i) {
-        var o = s(n.attr("mdui-collapse"));i = new t.Collapse(n, o), n.data("mdui.collapse", i);
-      }
-    });
-  }), function () {
-    function n(t) {
-      var n = this;n.$table = e(t).eq(0), n.$table.length && n.init();
-    }var i = function i(t) {
-      return "<" + t + ' class="mdui-table-cell-checkbox"><label class="mdui-checkbox"><input type="checkbox"/><i class="mdui-checkbox-icon"></i></label></' + t + ">";
-    };n.prototype.init = function () {
-      var t = this;t.$thRow = t.$table.find("thead tr"), t.$tdRows = t.$table.find("tbody tr"), t.$tdCheckboxs = e(), t.selectable = t.$table.hasClass("mdui-table-selectable"), t.selectedRow = 0, t._updateThCheckbox(), t._updateTdCheckbox(), t._updateNumericCol();
-    }, n.prototype._updateTdCheckbox = function () {
-      var t = this;t.$tdRows.each(function () {
-        var n = e(this);if (n.find(".mdui-table-cell-checkbox").remove(), t.selectable) {
-          var o = e(i("td")).prependTo(n).find('input[type="checkbox"]');n.hasClass("mdui-table-row-selected") && (o[0].checked = !0, t.selectedRow++), t.$thCheckbox[0].checked = t.selectedRow === t.$tdRows.length, o.on("change", function () {
-            o[0].checked ? (n.addClass("mdui-table-row-selected"), t.selectedRow++) : (n.removeClass("mdui-table-row-selected"), t.selectedRow--), t.$thCheckbox[0].checked = t.selectedRow === t.$tdRows.length;
-          }), t.$tdCheckboxs = t.$tdCheckboxs.add(o);
-        }
-      });
-    }, n.prototype._updateThCheckbox = function () {
-      var t = this;t.$thRow.find(".mdui-table-cell-checkbox").remove(), t.selectable && (t.$thCheckbox = e(i("th")).prependTo(t.$thRow).find('input[type="checkbox"]').on("change", function () {
-        var n = t.$thCheckbox[0].checked;t.selectedRow = n ? t.$tdRows.length : 0, t.$tdCheckboxs.each(function (t, e) {
-          e.checked = n;
-        }), t.$tdRows.each(function (t, i) {
-          e(i)[n ? "addClass" : "removeClass"]("mdui-table-row-selected");
-        });
-      }));
-    }, n.prototype._updateNumericCol = function () {
-      var t,
-          n,
-          i = this;i.$thRow.find("th").each(function (o, a) {
-        t = e(a), i.$tdRows.each(function () {
-          n = e(this);var i = t.hasClass("mdui-table-col-numeric") ? "addClass" : "removeClass";n.find("td").eq(o)[i]("mdui-table-col-numeric");
-        });
-      });
-    }, t.mutation(".mdui-table", function () {
-      var t = e(this);t.data("mdui.table") || t.data("mdui.table", new n(t));
-    }), t.updateTables = function () {
-      e(arguments.length ? arguments[0] : ".mdui-table").each(function () {
-        var t = e(this),
-            i = t.data("mdui.table");i ? i.init() : t.data("mdui.table", new n(t));
-      });
-    };
-  }(), function () {
-    function t(t) {
-      if (t.length && !t.data("isRemoved")) {
-        t.data("isRemoved", !0);var e = setTimeout(function () {
-          t.remove();
-        }, 400),
-            n = t.data("translate");t.addClass("mdui-ripple-wave-fill").transform(n.replace("scale(1)", "scale(1.01)")).transitionEnd(function () {
-          clearTimeout(e), t.addClass("mdui-ripple-wave-out").transform(n.replace("scale(1)", "scale(1.01)")), e = setTimeout(function () {
-            t.remove();
-          }, 700), setTimeout(function () {
-            t.transitionEnd(function () {
-              clearTimeout(e), t.remove();
-            });
-          }, 0);
-        });
-      }
-    }var i = { delay: 200, show: function show(t, n) {
-        if (2 !== t.button) {
-          var i,
-              o = (i = "touches" in t && t.touches.length ? t.touches[0] : t).pageX,
-              a = i.pageY,
-              s = n.offset(),
-              r = { x: o - s.left, y: a - s.top },
-              c = n.innerHeight(),
-              d = n.innerWidth(),
-              u = Math.max(Math.pow(Math.pow(c, 2) + Math.pow(d, 2), .5), 48),
-              l = "translate3d(" + (d / 2 - r.x) + "px, " + (c / 2 - r.y) + "px, 0) scale(1)";e('<div class="mdui-ripple-wave" style="width: ' + u + "px; height: " + u + "px; margin-top:-" + u / 2 + "px; margin-left:-" + u / 2 + "px; left:" + r.x + "px; top:" + r.y + 'px;"></div>').data("translate", l).prependTo(n).reflow().transform(l);
-        }
-      }, hide: function hide(n, o) {
-        var a = e(o || this);a.children(".mdui-ripple-wave").each(function () {
-          t(e(this));
-        }), a.off("touchmove touchend touchcancel mousemove mouseup mouseleave", i.hide);
-      } };n.on(a.start, function (t) {
-      if (a.isAllow(t) && (a.register(t), t.target !== document)) {
-        var n,
-            o = e(t.target);if ((n = o.hasClass("mdui-ripple") ? o : o.parents(".mdui-ripple").eq(0)).length) {
-          if (n[0].disabled || null !== n.attr("disabled")) return;if ("touchstart" === t.type) {
-            var s = !1,
-                r = setTimeout(function () {
-              r = null, i.show(t, n);
-            }, i.delay),
-                c = function c(e) {
-              r && (clearTimeout(r), r = null, i.show(t, n)), s || (s = !0, i.hide(e, n));
-            };n.on("touchmove", function (t) {
-              r && (clearTimeout(r), r = null), c(t);
-            }).on("touchend touchcancel", c);
-          } else i.show(t, n), n.on("touchmove touchend touchcancel mousemove mouseup mouseleave", i.hide);
-        }
-      }
-    }).on(a.unlock, a.register);
-  }(), function () {
-    var i = function i(t, e) {
-      return !("object" != (typeof t === "undefined" ? "undefined" : _typeof(t)) || null === t || void 0 === t[e] || !t[e]) && t[e];
-    };n.on("input focus blur", ".mdui-textfield-input", { useCapture: !0 }, function (t) {
-      var n = t.target,
-          o = e(n),
-          a = t.type,
-          s = o.val(),
-          r = i(t.detail, "reInit"),
-          c = i(t.detail, "domLoadedEvent"),
-          d = o.attr("type") || "";if (!(["checkbox", "button", "submit", "range", "radio", "image"].indexOf(d) >= 0)) {
-        var u = o.parent(".mdui-textfield");if ("focus" === a && u.addClass("mdui-textfield-focus"), "blur" === a && u.removeClass("mdui-textfield-focus"), "blur" !== a && "input" !== a || u[s && "" !== s ? "addClass" : "removeClass"]("mdui-textfield-not-empty"), u[n.disabled ? "addClass" : "removeClass"]("mdui-textfield-disabled"), "input" !== a && "blur" !== a || c || n.validity && u[n.validity.valid ? "removeClass" : "addClass"]("mdui-textfield-invalid-html5"), "textarea" === t.target.nodeName.toLowerCase()) {
-          var l = o.val(),
-              f = !1;"" === l.replace(/[\r\n]/g, "") && (o.val(" " + l), f = !0), o.height("");var p = o.height(),
-              h = n.scrollHeight;h > p && o.height(h), f && o.val(l);
-        }r && u.find(".mdui-textfield-counter").remove();var m = o.attr("maxlength");if (m) {
-          (r || c) && e('<div class="mdui-textfield-counter"><span class="mdui-textfield-counter-inputed"></span> / ' + m + "</div>").appendTo(u);var v = s.length + s.split("\n").length - 1;u.find(".mdui-textfield-counter-inputed").text(v.toString());
-        }(u.find(".mdui-textfield-helper").length || u.find(".mdui-textfield-error").length || m) && u.addClass("mdui-textfield-has-bottom");
-      }
-    }), n.on("click", ".mdui-textfield-expandable .mdui-textfield-icon", function () {
-      e(this).parents(".mdui-textfield").addClass("mdui-textfield-expanded").find(".mdui-textfield-input")[0].focus();
-    }), n.on("click", ".mdui-textfield-expanded .mdui-textfield-close", function () {
-      e(this).parents(".mdui-textfield").removeClass("mdui-textfield-expanded").find(".mdui-textfield-input").val("");
-    }), t.updateTextFields = function () {
-      e(arguments.length ? arguments[0] : ".mdui-textfield").each(function () {
-        e(this).find(".mdui-textfield-input").trigger("input", { reInit: !0 });
-      });
-    }, t.mutation(".mdui-textfield", function () {
-      e(this).find(".mdui-textfield-input").trigger("input", { domLoadedEvent: !0 });
-    });
-  }(), function () {
-    var i = function i(t) {
-      var e = t.data(),
-          n = e.$track,
-          i = e.$fill,
-          o = e.$thumb,
-          a = e.$input,
-          s = e.min,
-          r = e.max,
-          c = e.disabled,
-          d = e.discrete,
-          u = e.$thumbText,
-          l = a.val(),
-          f = (l - s) / (r - s) * 100;i.width(f + "%"), n.width(100 - f + "%"), c && (i.css("padding-right", "6px"), n.css("padding-left", "6px")), o.css("left", f + "%"), d && u.text(l), t[0 === parseFloat(f) ? "addClass" : "removeClass"]("mdui-slider-zero");
-    },
-        o = function o(t) {
-      var n = e('<div class="mdui-slider-track"></div>'),
-          o = e('<div class="mdui-slider-fill"></div>'),
-          a = e('<div class="mdui-slider-thumb"></div>'),
-          s = t.find('input[type="range"]'),
-          r = s[0].disabled;t[r ? "addClass" : "removeClass"]("mdui-slider-disabled"), t.find(".mdui-slider-track").remove(), t.find(".mdui-slider-fill").remove(), t.find(".mdui-slider-thumb").remove(), t.append(n).append(o).append(a);var c,
-          d = t.hasClass("mdui-slider-discrete");d && (c = e("<span></span>"), a.empty().append(c)), t.data({ $track: n, $fill: o, $thumb: a, $input: s, min: s.attr("min"), max: s.attr("max"), disabled: r, discrete: d, $thumbText: c }), i(t);
-    },
-        s = '.mdui-slider input[type="range"]';n.on("input change", s, function () {
-      var t = e(this).parent();i(t);
-    }).on(a.start, s, function (t) {
-      a.isAllow(t) && (a.register(t), this.disabled || e(this).parent().addClass("mdui-slider-focus"));
-    }).on(a.end, s, function (t) {
-      a.isAllow(t) && (this.disabled || e(this).parent().removeClass("mdui-slider-focus"));
-    }).on(a.unlock, s, a.register), t.mutation(".mdui-slider", function () {
-      o(e(this));
-    }), t.updateSliders = function () {
-      e(arguments.length ? arguments[0] : ".mdui-slider").each(function () {
-        o(e(this));
-      });
-    };
-  }(), t.Fab = function () {
-    function t(t, o) {
-      var s = this;if (s.$fab = e(t).eq(0), s.$fab.length) {
-        var r = s.$fab.data("mdui.fab");if (r) return r;s.options = e.extend({}, i, o || {}), s.state = "closed", s.$btn = s.$fab.find(".mdui-fab"), s.$dial = s.$fab.find(".mdui-fab-dial"), s.$dialBtns = s.$dial.find(".mdui-fab"), "hover" === s.options.trigger && (s.$btn.on("touchstart mouseenter", function () {
-          s.open();
-        }), s.$fab.on("mouseleave", function () {
-          s.close();
-        })), "click" === s.options.trigger && s.$btn.on(a.start, function () {
-          s.open();
-        }), n.on(a.start, function (t) {
-          e(t.target).parents(".mdui-fab-wrapper").length || s.close();
-        });
-      }
-    }var i = { trigger: "hover" };return t.prototype.open = function () {
-      var t = this;"opening" !== t.state && "opened" !== t.state && (t.$dialBtns.each(function (e, n) {
-        n.style["transition-delay"] = n.style["-webkit-transition-delay"] = 15 * (t.$dialBtns.length - e) + "ms";
-      }), t.$dial.css("height", "auto").addClass("mdui-fab-dial-show"), t.$btn.find(".mdui-fab-opened").length && t.$btn.addClass("mdui-fab-opened"), t.state = "opening", r("open", "fab", t, t.$fab), t.$dialBtns.eq(0).transitionEnd(function () {
-        t.$btn.hasClass("mdui-fab-opened") && (t.state = "opened", r("opened", "fab", t, t.$fab));
-      }));
-    }, t.prototype.close = function () {
-      var t = this;"closing" !== t.state && "closed" !== t.state && (t.$dialBtns.each(function (t, e) {
-        e.style["transition-delay"] = e.style["-webkit-transition-delay"] = 15 * t + "ms";
-      }), t.$dial.removeClass("mdui-fab-dial-show"), t.$btn.removeClass("mdui-fab-opened"), t.state = "closing", r("close", "fab", t, t.$fab), t.$dialBtns.eq(-1).transitionEnd(function () {
-        t.$btn.hasClass("mdui-fab-opened") || (t.state = "closed", r("closed", "fab", t, t.$fab), t.$dial.css("height", 0));
-      }));
-    }, t.prototype.toggle = function () {
-      var t = this;"opening" === t.state || "opened" === t.state ? t.close() : "closing" !== t.state && "closed" !== t.state || t.open();
-    }, t.prototype.getState = function () {
-      return this.state;
-    }, t.prototype.show = function () {
-      this.$fab.removeClass("mdui-fab-hide");
-    }, t.prototype.hide = function () {
-      this.$fab.addClass("mdui-fab-hide");
-    }, t;
-  }(), e(function () {
-    n.on("touchstart mousedown mouseover", "[mdui-fab]", function (n) {
-      var i = e(this),
-          o = i.data("mdui.fab");if (!o) {
-        var a = s(i.attr("mdui-fab"));o = new t.Fab(i, a), i.data("mdui.fab", o);
-      }
-    });
-  }), t.Select = function () {
-    function t(t, i) {
-      var a = this,
-          s = a.$selectNative = e(t).eq(0);if (s.length) {
-        var r = s.data("mdui.select");if (r) return r;s.hide(), a.options = e.extend({}, o, i || {}), a.uniqueID = e.guid(), a.state = "closed", a.handleUpdate(), n.on("click touchstart", function (t) {
-          var n = e(t.target);"opening" !== a.state && "opened" !== a.state || n.is(a.$select) || e.contains(a.$select[0], n[0]) || a.close();
-        });
-      }
-    }var o = { position: "auto", gutter: 16 },
-        a = function a(t) {
-      var e,
-          n,
-          o = i.height(),
-          a = t.options.gutter,
-          s = t.options.position,
-          r = parseInt(t.$select.height()),
-          c = t.$items.eq(0),
-          d = parseInt(c.height()),
-          u = parseInt(c.css("margin-top")),
-          l = parseFloat(t.$select.width() + .01),
-          f = d * t.size + 2 * u,
-          p = t.$select[0].getBoundingClientRect().top;if ("auto" === s) {
-        var h = o - 2 * a;f > h && (f = h), n = -(u + t.selectedIndex * d + (d - r) / 2);var m = -(u + (t.size - 1) * d + (d - r) / 2);n < m && (n = m);var v = p + n;v < a ? n = -(p - a) : v + f + a > o && (n = -(p + f + a - o)), e = t.selectedIndex * d + d / 2 + u + "px";
-      } else "bottom" === s ? (n = r, e = "0px") : "top" === s && (n = -f - 1, e = "100%");t.$select.width(l), t.$menu.width(l).height(f).css({ "margin-top": n + "px", "transform-origin": "center " + e + " 0" });
-    };t.prototype.handleUpdate = function () {
-      var t = this;"opening" !== t.state && "opened" !== t.state || t.close();var n = t.$selectNative;t.value = n.val(), t.text = "", t.$items = e(), n.find("option").each(function (n, i) {
-        var o = { value: i.value, text: i.textContent, disabled: i.disabled, selected: t.value === i.value, index: n };t.value === o.value && (t.text = o.text, t.selectedIndex = n), t.$items = t.$items.add(e('<div class="mdui-select-menu-item mdui-ripple"' + (o.disabled ? " disabled" : "") + (o.selected ? " selected" : "") + ">" + o.text + "</div>").data(o));
-      }), t.$selected = e('<span class="mdui-select-selected">' + t.text + "</span>"), t.$select = e('<div class="mdui-select mdui-select-position-' + t.options.position + '" style="' + t.$selectNative.attr("style") + '" id="' + t.uniqueID + '"></div>').show().append(t.$selected), t.$menu = e('<div class="mdui-select-menu"></div>').appendTo(t.$select).append(t.$items), e("#" + t.uniqueID).remove(), n.after(t.$select), t.size = t.$selectNative.attr("size"), t.size || (t.size = t.$items.length, t.size > 8 && (t.size = 8)), t.size < 2 && (t.size = 2), t.$items.on("click", function () {
-        if ("closing" !== t.state) {
-          var i = e(this);if (!i.data("disabled")) {
-            var o = i.data();t.$selected.text(o.text), n.val(o.value), t.$items.removeAttr("selected"), i.attr("selected", ""), t.selectedIndex = o.index, t.value = o.value, t.text = o.text, n.trigger("change"), t.close();
-          }
-        }
-      }), t.$select.on("click", function (n) {
-        var i = e(n.target);i.is(".mdui-select-menu") || i.is(".mdui-select-menu-item") || t.toggle();
-      });
-    };var s = function s(t) {
-      t.$select.removeClass("mdui-select-closing"), "opening" === t.state && (t.state = "opened", r("opened", "select", t, t.$selectNative), t.$menu.css("overflow-y", "auto")), "closing" === t.state && (t.state = "closed", r("closed", "select", t, t.$selectNative), t.$select.width(""), t.$menu.css({ "margin-top": "", height: "", width: "" }));
-    };return t.prototype.open = function () {
-      var t = this;"opening" !== t.state && "opened" !== t.state && (t.state = "opening", r("open", "select", t, t.$selectNative), a(t), t.$select.addClass("mdui-select-open"), t.$menu.transitionEnd(function () {
-        s(t);
-      }));
-    }, t.prototype.close = function () {
-      var t = this;"closing" !== t.state && "closed" !== t.state && (t.state = "closing", r("close", "select", t, t.$selectNative), t.$menu.css("overflow-y", ""), t.$select.removeClass("mdui-select-open").addClass("mdui-select-closing"), t.$menu.transitionEnd(function () {
-        s(t);
-      }));
-    }, t.prototype.toggle = function () {
-      var t = this;"opening" === t.state || "opened" === t.state ? t.close() : "closing" !== t.state && "closed" !== t.state || t.open();
-    }, t;
-  }(), e(function () {
-    t.mutation("[mdui-select]", function () {
-      var n = e(this),
-          i = n.data("mdui.select");i || (i = new t.Select(n, s(n.attr("mdui-select"))), n.data("mdui.select", i));
-    });
-  }), e(function () {
-    t.mutation(".mdui-appbar-scroll-hide", function () {
-      var n = e(this);n.data("mdui.headroom", new t.Headroom(n));
-    }), t.mutation(".mdui-appbar-scroll-toolbar-hide", function () {
-      var n = e(this),
-          i = new t.Headroom(n, { pinnedClass: "mdui-headroom-pinned-toolbar", unpinnedClass: "mdui-headroom-unpinned-toolbar" });n.data("mdui.headroom", i);
-    });
-  }), t.Tab = function () {
-    function t(t, o) {
-      var a = this;if (a.$tab = e(t).eq(0), a.$tab.length) {
-        var s = a.$tab.data("mdui.tab");if (s) return s;a.options = e.extend({}, n, o || {}), a.$tabs = a.$tab.children("a"), a.$indicator = e('<div class="mdui-tab-indicator"></div>').appendTo(a.$tab), a.activeIndex = !1;var r = location.hash;r && a.$tabs.each(function (t, n) {
-          if (e(n).attr("href") === r) return a.activeIndex = t, !1;
-        }), !1 === a.activeIndex && a.$tabs.each(function (t, n) {
-          if (e(n).hasClass("mdui-tab-active")) return a.activeIndex = t, !1;
-        }), a.$tabs.length && !1 === a.activeIndex && (a.activeIndex = 0), a._setActive(), i.on("resize", e.throttle(function () {
-          a._setIndicatorPosition();
-        }, 100)), a.$tabs.each(function (t, e) {
-          a._bindTabEvent(e);
-        });
-      }
-    }var n = { trigger: "click", loop: !1 },
-        o = function o(t) {
-      return t[0].disabled || null !== t.attr("disabled");
-    };return t.prototype._bindTabEvent = function (t) {
-      var n = this,
-          i = e(t),
-          a = function a(e) {
-        o(i) ? e.preventDefault() : (n.activeIndex = n.$tabs.index(t), n._setActive());
-      };i.on("click", a), "hover" === n.options.trigger && i.on("mouseenter", a), i.on("click", function (t) {
-        0 === i.attr("href").indexOf("#") && t.preventDefault();
-      });
-    }, t.prototype._setActive = function () {
-      var t = this;t.$tabs.each(function (n, i) {
-        var a = e(i),
-            s = a.attr("href");n !== t.activeIndex || o(a) ? (a.removeClass("mdui-tab-active"), e(s).hide()) : (a.hasClass("mdui-tab-active") || (r("change", "tab", t, t.$tab, { index: t.activeIndex, id: s.substr(1) }), r("show", "tab", t, a), a.addClass("mdui-tab-active")), e(s).show(), t._setIndicatorPosition());
-      });
-    }, t.prototype._setIndicatorPosition = function () {
-      var t,
-          e,
-          n = this;!1 !== n.activeIndex ? (t = n.$tabs.eq(n.activeIndex), o(t) || (e = t.offset(), n.$indicator.css({ left: e.left + n.$tab[0].scrollLeft - n.$tab[0].getBoundingClientRect().left + "px", width: t.width() + "px" }))) : n.$indicator.css({ left: 0, width: 0 });
-    }, t.prototype.next = function () {
-      var t = this;!1 !== t.activeIndex && (t.$tabs.length > t.activeIndex + 1 ? t.activeIndex++ : t.options.loop && (t.activeIndex = 0), t._setActive());
-    }, t.prototype.prev = function () {
-      var t = this;!1 !== t.activeIndex && (t.activeIndex > 0 ? t.activeIndex-- : t.options.loop && (t.activeIndex = t.$tabs.length - 1), t._setActive());
-    }, t.prototype.show = function (t) {
-      var e = this;!1 !== e.activeIndex && (parseInt(t) === t ? e.activeIndex = t : e.$tabs.each(function (n, i) {
-        if (i.id === t) return e.activeIndex = n, !1;
-      }), e._setActive());
-    }, t.prototype.handleUpdate = function () {
-      var t = this,
-          e = t.$tabs,
-          n = t.$tab.children("a"),
-          i = e.get(),
-          o = n.get();if (!n.length) return t.activeIndex = !1, t.$tabs = n, void t._setIndicatorPosition();n.each(function (e, n) {
-        i.indexOf(n) < 0 && (t._bindTabEvent(n), !1 === t.activeIndex ? t.activeIndex = 0 : e <= t.activeIndex && t.activeIndex++);
-      }), e.each(function (e, n) {
-        o.indexOf(n) < 0 && (e < t.activeIndex ? t.activeIndex-- : e === t.activeIndex && (t.activeIndex = 0));
-      }), t.$tabs = n, t._setActive();
-    }, t;
-  }(), e(function () {
-    t.mutation("[mdui-tab]", function () {
-      var n = e(this),
-          i = n.data("mdui.tab");i || (i = new t.Tab(n, s(n.attr("mdui-tab"))), n.data("mdui.tab", i));
-    });
-  }), t.Drawer = function () {
-    function t(t, s) {
-      var r = this;if (r.$drawer = e(t).eq(0), r.$drawer.length) {
-        var c = r.$drawer.data("mdui.drawer");if (c) return c;r.options = e.extend({}, n, s || {}), r.overlay = !1, r.position = r.$drawer.hasClass("mdui-drawer-right") ? "right" : "left", r.$drawer.hasClass("mdui-drawer-close") ? r.state = "closed" : r.$drawer.hasClass("mdui-drawer-open") ? r.state = "opened" : o() ? r.state = "opened" : r.state = "closed", i.on("resize", e.throttle(function () {
-          o() ? (r.overlay && !r.options.overlay && (e.hideOverlay(), r.overlay = !1, e.unlockScreen()), r.$drawer.hasClass("mdui-drawer-close") || (r.state = "opened")) : r.overlay || "opened" !== r.state || (r.$drawer.hasClass("mdui-drawer-open") ? (e.showOverlay(), r.overlay = !0, e.lockScreen(), e(".mdui-overlay").one("click", function () {
-            r.close();
-          })) : r.state = "closed");
-        }, 100)), r.$drawer.find("[mdui-drawer-close]").each(function () {
-          e(this).on("click", function () {
-            r.close();
-          });
-        }), a(r);
-      }
-    }var n = { overlay: !1, swipe: !1 },
-        o = function o() {
-      return i.width() >= 1024;
-    },
-        a = function a(t) {
-      function n(e, n) {
-        var i = "translate(" + -1 * ("right" === t.position ? -1 : 1) * e + "px, 0) !important;";t.$drawer.css("cssText", "transform:" + i + (n ? "transition: initial !important;" : ""));
-      }function i() {
-        t.$drawer.css({ transform: "", transition: "" });
-      }function o() {
-        return t.$drawer.width() + 10;
-      }function a(t) {
-        return Math.min(Math.max("closing" === p ? f - t : o() + f - t, 0), o());
-      }function s(e) {
-        u = e.touches[0].pageX, "right" === t.position && (u = m.width() - u), l = e.touches[0].pageY, "opened" !== t.state && (u > v || d !== s) || (h = !0, m.on({ touchmove: r, touchend: c, touchcancel: r }));
-      }function r(i) {
-        var o = i.touches[0].pageX;"right" === t.position && (o = m.width() - o);var s = i.touches[0].pageY;if (p) n(a(o), !0);else if (h) {
-          var r = Math.abs(o - u),
-              d = Math.abs(s - l);r > 8 && d <= 8 ? (f = o, p = "opened" === t.state ? "closing" : "opening", e.lockScreen(), n(a(o), !0)) : r <= 8 && d > 8 && c();
-        }
-      }function c(n) {
-        if (p) {
-          var s = n.changedTouches[0].pageX;"right" === t.position && (s = m.width() - s);var d = a(s) / o();h = !1;var u = p;p = null, "opening" === u ? d < .92 ? (i(), t.open()) : i() : d > .08 ? (i(), t.close()) : i(), e.unlockScreen();
-        } else h = !1;m.off({ touchmove: r, touchend: c, touchcancel: r });
-      }var d,
-          u,
-          l,
-          f,
-          p = !1,
-          h = !1,
-          m = e("body"),
-          v = 24;t.options.swipe && (d || (m.on("touchstart", s), d = s));
-    },
-        s = function s(t) {
-      t.$drawer.hasClass("mdui-drawer-open") ? (t.state = "opened", r("opened", "drawer", t, t.$drawer)) : (t.state = "closed", r("closed", "drawer", t, t.$drawer));
-    };return t.prototype.open = function () {
-      var t = this;"opening" !== t.state && "opened" !== t.state && (t.state = "opening", r("open", "drawer", t, t.$drawer), t.options.overlay || e("body").addClass("mdui-drawer-body-" + t.position), t.$drawer.removeClass("mdui-drawer-close").addClass("mdui-drawer-open").transitionEnd(function () {
-        s(t);
-      }), o() && !t.options.overlay || (t.overlay = !0, e.showOverlay().one("click", function () {
-        t.close();
-      }), e.lockScreen()));
-    }, t.prototype.close = function () {
-      var t = this;"closing" !== t.state && "closed" !== t.state && (t.state = "closing", r("close", "drawer", t, t.$drawer), t.options.overlay || e("body").removeClass("mdui-drawer-body-" + t.position), t.$drawer.addClass("mdui-drawer-close").removeClass("mdui-drawer-open").transitionEnd(function () {
-        s(t);
-      }), t.overlay && (e.hideOverlay(), t.overlay = !1, e.unlockScreen()));
-    }, t.prototype.toggle = function () {
-      var t = this;"opening" === t.state || "opened" === t.state ? t.close() : "closing" !== t.state && "closed" !== t.state || t.open();
-    }, t.prototype.getState = function () {
-      return this.state;
-    }, t;
-  }(), e(function () {
-    t.mutation("[mdui-drawer]", function () {
-      var n = e(this),
-          i = s(n.attr("mdui-drawer")),
-          o = i.target;delete i.target;var a = e(o).eq(0),
-          r = a.data("mdui.drawer");r || (r = new t.Drawer(a, i), a.data("mdui.drawer", r)), n.on("click", function () {
-        r.toggle();
-      });
-    });
-  }), t.Dialog = function () {
-    function t(t, n) {
-      var i = this;if (i.$dialog = e(t).eq(0), i.$dialog.length) {
-        var o = i.$dialog.data("mdui.dialog");if (o) return o;e.contains(document.body, i.$dialog[0]) || (i.append = !0, e("body").append(i.$dialog)), i.options = e.extend({}, d, n || {}), i.state = "closed", i.$dialog.find("[mdui-dialog-cancel]").each(function () {
-          e(this).on("click", function () {
-            r("cancel", "dialog", i, i.$dialog), i.options.closeOnCancel && i.close();
-          });
-        }), i.$dialog.find("[mdui-dialog-confirm]").each(function () {
-          e(this).on("click", function () {
-            r("confirm", "dialog", i, i.$dialog), i.options.closeOnConfirm && i.close();
-          });
-        }), i.$dialog.find("[mdui-dialog-close]").each(function () {
-          e(this).on("click", function () {
-            i.close();
-          });
-        });
-      }
-    }var a,
-        s,
-        c,
-        d = { history: !0, overlay: !0, modal: !1, closeOnEsc: !0, closeOnCancel: !0, closeOnConfirm: !0, destroyOnClosed: !1 },
-        u = "__md_dialog",
-        l = function l() {
-      if (c) {
-        var t = c.$dialog,
-            e = t.children(".mdui-dialog-title"),
-            n = t.children(".mdui-dialog-content"),
-            o = t.children(".mdui-dialog-actions");t.height(""), n.height("");var a = t.height();t.css({ top: (i.height() - a) / 2 + "px", height: a + "px" }), n.height(a - (e.height() || 0) - (o.height() || 0));
-      }
-    },
-        f = function f() {
-      location.hash.substring(1).indexOf("&mdui-dialog") < 0 && c.close(!0);
-    },
-        p = function p(t) {
-      e(t.target).hasClass("mdui-overlay") && c && c.close();
-    },
-        h = function h(t) {
-      t.$dialog.hasClass("mdui-dialog-open") ? (t.state = "opened", r("opened", "dialog", t, t.$dialog)) : (t.state = "closed", r("closed", "dialog", t, t.$dialog), t.$dialog.hide(), 0 === o.queue(u).length && !c && s && (e.unlockScreen(), s = !1), i.off("resize", e.throttle(function () {
-        l();
-      }, 100)), t.options.destroyOnClosed && t.destroy());
-    };return t.prototype._doOpen = function () {
-      var t = this;if (c = t, s || (e.lockScreen(), s = !0), t.$dialog.show(), l(), i.on("resize", e.throttle(function () {
-        l();
-      }, 100)), t.state = "opening", r("open", "dialog", t, t.$dialog), t.$dialog.addClass("mdui-dialog-open").transitionEnd(function () {
-        h(t);
-      }), a || (a = e.showOverlay(5100)), a[t.options.modal ? "off" : "on"]("click", p).css("opacity", t.options.overlay ? "" : 0), t.options.history) {
-        var n = location.hash.substring(1);n.indexOf("&mdui-dialog") > -1 && (n = n.replace(/&mdui-dialog/g, "")), location.hash = n + "&mdui-dialog", i.on("hashchange", f);
-      }
-    }, t.prototype.open = function () {
-      var t = this;"opening" !== t.state && "opened" !== t.state && (c && ("opening" === c.state || "opened" === c.state) || o.queue(u).length ? o.queue(u, function () {
-        t._doOpen();
-      }) : t._doOpen());
-    }, t.prototype.close = function () {
-      var t = this;setTimeout(function () {
-        "closing" !== t.state && "closed" !== t.state && (c = null, t.state = "closing", r("close", "dialog", t, t.$dialog), 0 === o.queue(u).length && a && (e.hideOverlay(), a = null), t.$dialog.removeClass("mdui-dialog-open").transitionEnd(function () {
-          h(t);
-        }), t.options.history && 0 === o.queue(u).length && (arguments[0] || window.history.back(), i.off("hashchange", f)), setTimeout(function () {
-          o.dequeue(u);
-        }, 100));
-      }, 0);
-    }, t.prototype.toggle = function () {
-      var t = this;"opening" === t.state || "opened" === t.state ? t.close() : "closing" !== t.state && "closed" !== t.state || t.open();
-    }, t.prototype.getState = function () {
-      return this.state;
-    }, t.prototype.destroy = function () {
-      var t = this;t.append && t.$dialog.remove(), t.$dialog.removeData("mdui.dialog"), 0 !== o.queue(u).length || c || (a && (e.hideOverlay(), a = null), s && (e.unlockScreen(), s = !1));
-    }, t.prototype.handleUpdate = function () {
-      l();
-    }, n.on("keydown", function (t) {
-      c && c.options.closeOnEsc && "opened" === c.state && 27 === t.keyCode && c.close();
-    }), t;
-  }(), e(function () {
-    n.on("click", "[mdui-dialog]", function () {
-      var n = e(this),
-          i = s(n.attr("mdui-dialog")),
-          o = i.target;delete i.target;var a = e(o).eq(0),
-          r = a.data("mdui.dialog");r || (r = new t.Dialog(a, i), a.data("mdui.dialog", r)), r.open();
-    });
-  }), t.dialog = function (n) {
-    var i = { title: "", content: "", buttons: [], stackedButtons: !1, cssClass: "", history: !0, overlay: !0, modal: !1, closeOnEsc: !0, destroyOnClosed: !0, onOpen: function onOpen() {}, onOpened: function onOpened() {}, onClose: function onClose() {}, onClosed: function onClosed() {} },
-        o = { text: "", bold: !1, close: !0, onClick: function onClick(t) {} };n = e.extend({}, i, n || {}), e.each(n.buttons, function (t, i) {
-      n.buttons[t] = e.extend({}, o, i);
-    });var a = "";n.buttons.length && (a = '<div class="mdui-dialog-actions ' + (n.stackedButtons ? "mdui-dialog-actions-stacked" : "") + '">', e.each(n.buttons, function (t, e) {
-      a += '<a href="javascript:void(0)" class="mdui-btn mdui-ripple mdui-text-color-primary ' + (e.bold ? "mdui-btn-bold" : "") + '">' + e.text + "</a>";
-    }), a += "</div>");var s = '<div class="mdui-dialog ' + n.cssClass + '">' + (n.title ? '<div class="mdui-dialog-title">' + n.title + "</div>" : "") + (n.content ? '<div class="mdui-dialog-content">' + n.content + "</div>" : "") + a + "</div>",
-        r = new t.Dialog(s, { history: n.history, overlay: n.overlay, modal: n.modal, closeOnEsc: n.closeOnEsc, destroyOnClosed: n.destroyOnClosed });return n.buttons.length && r.$dialog.find(".mdui-dialog-actions .mdui-btn").each(function (t, i) {
-      e(i).on("click", function () {
-        "function" == typeof n.buttons[t].onClick && n.buttons[t].onClick(r), n.buttons[t].close && r.close();
-      });
-    }), "function" == typeof n.onOpen && r.$dialog.on("open.mdui.dialog", function () {
-      n.onOpen(r);
-    }).on("opened.mdui.dialog", function () {
-      n.onOpened(r);
-    }).on("close.mdui.dialog", function () {
-      n.onClose(r);
-    }).on("closed.mdui.dialog", function () {
-      n.onClosed(r);
-    }), r.open(), r;
-  }, t.alert = function (n, i, o, a) {
-    "function" == typeof i && (i = "", o = arguments[1], a = arguments[2]), void 0 === o && (o = function o() {}), void 0 === a && (a = {});var s = { confirmText: "ok", history: !0, modal: !1, closeOnEsc: !0 };return a = e.extend({}, s, a), t.dialog({ title: i, content: n, buttons: [{ text: a.confirmText, bold: !1, close: !0, onClick: o }], cssClass: "mdui-dialog-alert", history: a.history, modal: a.modal, closeOnEsc: a.closeOnEsc });
-  }, t.confirm = function (n, i, o, a, s) {
-    "function" == typeof i && (i = "", o = arguments[1], a = arguments[2], s = arguments[3]), void 0 === o && (o = function o() {}), void 0 === a && (a = function a() {}), void 0 === s && (s = {});var r = { confirmText: "ok", cancelText: "cancel", history: !0, modal: !1, closeOnEsc: !0 };return s = e.extend({}, r, s), t.dialog({ title: i, content: n, buttons: [{ text: s.cancelText, bold: !1, close: !0, onClick: a }, { text: s.confirmText, bold: !1, close: !0, onClick: o }], cssClass: "mdui-dialog-confirm", history: s.history, modal: s.modal, closeOnEsc: s.closeOnEsc });
-  }, t.prompt = function (n, i, o, a, s) {
-    "function" == typeof i && (i = "", o = arguments[1], a = arguments[2], s = arguments[3]), void 0 === o && (o = function o() {}), void 0 === a && (a = function a() {}), void 0 === s && (s = {});var r = { confirmText: "ok", cancelText: "cancel", history: !0, modal: !1, closeOnEsc: !0, type: "text", maxlength: "", defaultValue: "", confirmOnEnter: !1 };s = e.extend({}, r, s);var c = '<div class="mdui-textfield">' + (n ? '<label class="mdui-textfield-label">' + n + "</label>" : "") + ("text" === s.type ? '<input class="mdui-textfield-input" type="text" value="' + s.defaultValue + '" ' + (s.maxlength ? 'maxlength="' + s.maxlength + '"' : "") + "/>" : "") + ("textarea" === s.type ? '<textarea class="mdui-textfield-input" ' + (s.maxlength ? 'maxlength="' + s.maxlength + '"' : "") + ">" + s.defaultValue + "</textarea>" : "") + "</div>";return t.dialog({ title: i, content: c, buttons: [{ text: s.cancelText, bold: !1, close: !0, onClick: function onClick(t) {
-          var e = t.$dialog.find(".mdui-textfield-input").val();a(e, t);
-        } }, { text: s.confirmText, bold: !1, close: !0, onClick: function onClick(t) {
-          var e = t.$dialog.find(".mdui-textfield-input").val();o(e, t);
-        } }], cssClass: "mdui-dialog-prompt", history: s.history, modal: s.modal, closeOnEsc: s.closeOnEsc, onOpen: function onOpen(e) {
-        var n = e.$dialog.find(".mdui-textfield-input");t.updateTextFields(n), n[0].focus(), "text" === s.type && !0 === s.confirmOnEnter && n.on("keydown", function (t) {
-          if (13 === t.keyCode) {
-            var n = e.$dialog.find(".mdui-textfield-input").val();o(n, e), e.close();
-          }
-        }), "textarea" === s.type && n.on("input", function () {
-          e.handleUpdate();
-        }), s.maxlength && e.handleUpdate();
-      } });
-  }, t.Tooltip = function () {
-    function t(t) {
-      var e,
-          n,
-          o,
-          a = t.$target[0].getBoundingClientRect(),
-          s = c() ? 14 : 24,
-          r = t.$tooltip[0].offsetWidth,
-          d = t.$tooltip[0].offsetHeight;switch (o = t.options.position, -1 === ["bottom", "top", "left", "right"].indexOf(o) && (o = a.top + a.height + s + d + 2 < i.height() ? "bottom" : s + d + 2 < a.top ? "top" : s + r + 2 < a.left ? "left" : a.width + s + r + 2 < i.width() - a.left ? "right" : "bottom"), o) {case "bottom":
-          e = r / 2 * -1, n = a.height / 2 + s, t.$tooltip.transformOrigin("top center");break;case "top":
-          e = r / 2 * -1, n = -1 * (d + a.height / 2 + s), t.$tooltip.transformOrigin("bottom center");break;case "left":
-          e = -1 * (r + a.width / 2 + s), n = d / 2 * -1, t.$tooltip.transformOrigin("center right");break;case "right":
-          e = a.width / 2 + s, n = d / 2 * -1, t.$tooltip.transformOrigin("center left");}var u = t.$target.offset();t.$tooltip.css({ top: u.top + a.height / 2 + "px", left: u.left + a.width / 2 + "px", "margin-left": e + "px", "margin-top": n + "px" });
-    }function n(t, n) {
-      var i = this;if (i.$target = e(t).eq(0), i.$target.length) {
-        var s = i.$target.data("mdui.tooltip");if (s) return s;i.options = e.extend({}, o, n || {}), i.state = "closed", i.$tooltip = e('<div class="mdui-tooltip" id="' + e.guid() + '">' + i.options.content + "</div>").appendTo(document.body), i.$target.on("touchstart mouseenter", function (t) {
-          this.disabled || a.isAllow(t) && (a.register(t), i.open());
-        }).on("touchend mouseleave", function (t) {
-          this.disabled || a.isAllow(t) && i.close();
-        }).on(a.unlock, function (t) {
-          this.disabled || a.register(t);
-        });
-      }
-    }var o = { position: "auto", delay: 0, content: "" },
-        c = function c() {
-      return i.width() > 1024;
-    },
-        d = function d(t) {
-      t.$tooltip.hasClass("mdui-tooltip-open") ? (t.state = "opened", r("opened", "tooltip", t, t.$target)) : (t.state = "closed", r("closed", "tooltip", t, t.$target));
-    };return n.prototype._doOpen = function () {
-      var t = this;t.state = "opening", r("open", "tooltip", t, t.$target), t.$tooltip.addClass("mdui-tooltip-open").transitionEnd(function () {
-        d(t);
-      });
-    }, n.prototype.open = function (n) {
-      var i = this;if ("opening" !== i.state && "opened" !== i.state) {
-        var o = e.extend({}, i.options);e.extend(i.options, s(i.$target.attr("mdui-tooltip"))), n && e.extend(i.options, n), o.content !== i.options.content && i.$tooltip.html(i.options.content), t(i), i.options.delay ? i.timeoutId = setTimeout(function () {
-          i._doOpen();
-        }, i.options.delay) : (i.timeoutId = !1, i._doOpen());
-      }
-    }, n.prototype.close = function () {
-      var t = this;t.timeoutId && (clearTimeout(t.timeoutId), t.timeoutId = !1), "closing" !== t.state && "closed" !== t.state && (t.state = "closing", r("close", "tooltip", t, t.$target), t.$tooltip.removeClass("mdui-tooltip-open").transitionEnd(function () {
-        d(t);
-      }));
-    }, n.prototype.toggle = function () {
-      var t = this;"opening" === t.state || "opened" === t.state ? t.close() : "closing" !== t.state && "closed" !== t.state || t.open();
-    }, n.prototype.getState = function () {
-      return this.state;
-    }, n;
-  }(), e(function () {
-    n.on("touchstart mouseover", "[mdui-tooltip]", function () {
-      var n = e(this),
-          i = n.data("mdui.tooltip");if (!i) {
-        var o = s(n.attr("mdui-tooltip"));i = new t.Tooltip(n, o), n.data("mdui.tooltip", i);
-      }
-    });
-  }), function () {
-    function i(t, n) {
-      var i = this;if (i.message = t, i.options = e.extend({}, r, n || {}), i.message) {
-        i.state = "closed", i.timeoutId = !1;var o = "",
-            a = "";0 === i.options.buttonColor.indexOf("#") || 0 === i.options.buttonColor.indexOf("rgb") ? o = 'style="color:' + i.options.buttonColor + '"' : "" !== i.options.buttonColor && (a = "mdui-text-color-" + i.options.buttonColor), i.$snackbar = e('<div class="mdui-snackbar"><div class="mdui-snackbar-text">' + i.message + "</div>" + (i.options.buttonText ? '<a href="javascript:void(0)" class="mdui-snackbar-action mdui-btn mdui-ripple mdui-ripple-white ' + a + '" ' + o + ">" + i.options.buttonText + "</a>" : "") + "</div>").appendTo(document.body), i._setPosition("close"), i.$snackbar.reflow().addClass("mdui-snackbar-" + i.options.position);
-      }
-    }var s,
-        r = { timeout: 4e3, buttonText: "", buttonColor: "", position: "bottom", closeOnButtonClick: !0, closeOnOutsideClick: !0, onClick: function onClick() {}, onButtonClick: function onButtonClick() {}, onOpen: function onOpen() {}, onOpened: function onOpened() {}, onClose: function onClose() {}, onClosed: function onClosed() {} },
-        c = function c(t) {
-      var n = e(t.target);n.hasClass("mdui-snackbar") || n.parents(".mdui-snackbar").length || s.close();
-    };i.prototype._setPosition = function (t) {
-      var e,
-          n,
-          i = this,
-          o = i.$snackbar[0].clientHeight,
-          a = i.options.position;e = "bottom" === a || "top" === a ? "-50%" : "0", "open" === t ? n = "0" : ("bottom" === a && (n = o), "top" === a && (n = -o), "left-top" !== a && "right-top" !== a || (n = -o - 24), "left-bottom" !== a && "right-bottom" !== a || (n = o + 24)), i.$snackbar.transform("translate(" + e + "," + n + "px)");
-    }, i.prototype.open = function () {
-      var t = this;t.message && "opening" !== t.state && "opened" !== t.state && (s ? o.queue("__md_snackbar", function () {
-        t.open();
-      }) : (s = t, t.state = "opening", t.options.onOpen(), t._setPosition("open"), t.$snackbar.transitionEnd(function () {
-        "opening" === t.state && (t.state = "opened", t.options.onOpened(), t.options.buttonText && t.$snackbar.find(".mdui-snackbar-action").on("click", function () {
-          t.options.onButtonClick(), t.options.closeOnButtonClick && t.close();
-        }), t.$snackbar.on("click", function (n) {
-          e(n.target).hasClass("mdui-snackbar-action") || t.options.onClick();
-        }), t.options.closeOnOutsideClick && n.on(a.start, c), t.options.timeout && (t.timeoutId = setTimeout(function () {
-          t.close();
-        }, t.options.timeout)));
-      })));
-    }, i.prototype.close = function () {
-      var t = this;t.message && "closing" !== t.state && "closed" !== t.state && (t.timeoutId && clearTimeout(t.timeoutId), t.options.closeOnOutsideClick && n.off(a.start, c), t.state = "closing", t.options.onClose(), t._setPosition("close"), t.$snackbar.transitionEnd(function () {
-        "closing" === t.state && (s = null, t.state = "closed", t.options.onClosed(), t.$snackbar.remove(), o.dequeue("__md_snackbar"));
-      }));
-    }, t.snackbar = function (t, e) {
-      "string" != typeof t && (t = (e = t).message);var n = new i(t, e);return n.open(), n;
-    };
-  }(), n.on("click", ".mdui-bottom-nav>a", function () {
-    var t,
-        n = e(this),
-        i = n.parent();i.children("a").each(function (o, a) {
-      (t = n.is(a)) && r("change", "bottomNav", null, i, { index: o }), e(a)[t ? "addClass" : "removeClass"]("mdui-bottom-nav-active");
-    });
-  }), t.mutation(".mdui-bottom-nav-scroll-hide", function () {
-    var n = e(this),
-        i = new t.Headroom(n, { pinnedClass: "mdui-headroom-pinned-down", unpinnedClass: "mdui-headroom-unpinned-down" });n.data("mdui.headroom", i);
-  }), function () {
-    var n = function n() {
-      var t = !!arguments.length && arguments[0];return '<div class="mdui-spinner-layer ' + (t ? "mdui-spinner-layer-" + t : "") + '"><div class="mdui-spinner-circle-clipper mdui-spinner-left"><div class="mdui-spinner-circle"></div></div><div class="mdui-spinner-gap-patch"><div class="mdui-spinner-circle"></div></div><div class="mdui-spinner-circle-clipper mdui-spinner-right"><div class="mdui-spinner-circle"></div></div></div>';
-    },
-        i = function i(t) {
-      var i,
-          o = e(t);i = o.hasClass("mdui-spinner-colorful") ? n("1") + n("2") + n("3") + n("4") : n(), o.html(i);
-    };t.mutation(".mdui-spinner", function () {
-      i(this);
-    }), t.updateSpinners = function () {
-      e(arguments.length ? arguments[0] : ".mdui-spinner").each(function () {
-        i(this);
-      });
-    };
-  }(), t.Panel = function () {
-    return function (t, e) {
-      return new c(t, e, "panel");
-    };
-  }(), e(function () {
-    t.mutation("[mdui-panel]", function () {
-      var n = e(this),
-          i = n.data("mdui.panel");if (!i) {
-        var o = s(n.attr("mdui-panel"));i = new t.Panel(n, o), n.data("mdui.panel", i);
-      }
-    });
-  }), t.Menu = function () {
-    function t(t, s, r) {
-      var c = this;if (c.$anchor = e(t).eq(0), c.$anchor.length) {
-        var d = c.$anchor.data("mdui.menu");if (d) return d;c.$menu = e(s).eq(0), c.$anchor.siblings(c.$menu).length && (c.options = e.extend({}, o, r || {}), c.state = "closed", c.isCascade = c.$menu.hasClass("mdui-menu-cascade"), "auto" === c.options.covered ? c.isCovered = !c.isCascade : c.isCovered = c.options.covered, c.$anchor.on("click", function () {
-          c.toggle();
-        }), n.on("click touchstart", function (t) {
-          var n = e(t.target);"opening" !== c.state && "opened" !== c.state || n.is(c.$menu) || e.contains(c.$menu[0], n[0]) || n.is(c.$anchor) || e.contains(c.$anchor[0], n[0]) || c.close();
-        }), n.on("click", ".mdui-menu-item", function (t) {
-          var n = e(this);n.find(".mdui-menu").length || null !== n.attr("disabled") || c.close();
-        }), l(c), i.on("resize", e.throttle(function () {
-          a(c);
-        }, 100)));
-      }
-    }var o = { position: "auto", align: "auto", gutter: 16, fixed: !1, covered: "auto", subMenuTrigger: "hover", subMenuDelay: 200 },
-        a = function a(t) {
-      var e,
-          n,
-          o,
-          a,
-          s,
-          r,
-          c = i.height(),
-          d = i.width(),
-          u = t.options.gutter,
-          l = t.isCovered,
-          f = t.options.fixed,
-          p = t.$menu.width(),
-          h = t.$menu.height(),
-          m = t.$anchor,
-          v = m[0].getBoundingClientRect(),
-          g = v.top,
-          b = v.left,
-          x = v.height,
-          y = v.width,
-          $ = c - g - x,
-          w = d - b - y,
-          C = m[0].offsetTop,
-          k = m[0].offsetLeft;if (o = "auto" === t.options.position ? $ + (l ? x : 0) > h + u ? "bottom" : g + (l ? x : 0) > h + u ? "top" : "center" : t.options.position, a = "auto" === t.options.align ? w + y > p + u ? "left" : b + y > p + u ? "right" : "center" : t.options.align, "bottom" === o) r = "0", n = (l ? 0 : x) + (f ? g : C);else if ("top" === o) r = "100%", n = (l ? x : 0) + (f ? g - h : C - h);else {
-        r = "50%";var O = h;t.isCascade || h + 2 * u > c && (O = c - 2 * u, t.$menu.height(O)), n = (c - O) / 2 + (f ? 0 : C - g);
-      }if (t.$menu.css("top", n + "px"), "left" === a) s = "0", e = f ? b : k;else if ("right" === a) s = "100%", e = f ? b + y - p : k + y - p;else {
-        s = "50%";var T = p;p + 2 * u > d && (T = d - 2 * u, t.$menu.width(T)), e = (d - T) / 2 + (f ? 0 : k - b);
-      }t.$menu.css("left", e + "px"), t.$menu.transformOrigin(s + " " + r);
-    },
-        s = function s(t) {
-      var e,
-          n,
-          o,
-          a,
-          s,
-          r,
-          c = t.parent(".mdui-menu-item"),
-          d = i.height(),
-          u = i.width(),
-          l = t.width(),
-          f = t.height(),
-          p = c[0].getBoundingClientRect(),
-          h = p.width,
-          m = p.height,
-          v = p.left,
-          g = p.top;o = d - g > f ? "bottom" : g + m > f ? "top" : "bottom", a = u - v - h > l ? "left" : v > l ? "right" : "left", "bottom" === o ? (r = "0", e = "0") : "top" === o && (r = "100%", e = -f + m), t.css("top", e + "px"), "left" === a ? (s = "0", n = h) : "right" === a && (s = "100%", n = -l), t.css("left", n + "px"), t.transformOrigin(s + " " + r);
-    },
-        c = function c(t) {
-      s(t), t.addClass("mdui-menu-open").parent(".mdui-menu-item").addClass("mdui-menu-item-active");
-    },
-        d = function d(t) {
-      t.removeClass("mdui-menu-open").addClass("mdui-menu-closing").transitionEnd(function () {
-        t.removeClass("mdui-menu-closing");
-      }).parent(".mdui-menu-item").removeClass("mdui-menu-item-active"), t.find(".mdui-menu").each(function () {
-        var t = e(this);t.removeClass("mdui-menu-open").addClass("mdui-menu-closing").transitionEnd(function () {
-          t.removeClass("mdui-menu-closing");
-        }).parent(".mdui-menu-item").removeClass("mdui-menu-item-active");
-      });
-    },
-        u = function u(t) {
-      t.hasClass("mdui-menu-open") ? d(t) : c(t);
-    },
-        l = function l(t) {
-      if (t.$menu.on("click", ".mdui-menu-item", function (t) {
-        var n = e(this),
-            i = e(t.target);if (null === n.attr("disabled") && !i.is(".mdui-menu") && !i.is(".mdui-divider") && i.parents(".mdui-menu-item").eq(0).is(n)) {
-          var o = n.children(".mdui-menu");n.parent(".mdui-menu").children(".mdui-menu-item").each(function () {
-            var t = e(this).children(".mdui-menu");!t.length || o.length && t.is(o) || d(t);
-          }), o.length && u(o);
-        }
-      }), "hover" === t.options.subMenuTrigger) {
-        var n, i, o;t.$menu.on("mouseover mouseout", ".mdui-menu-item", function (a) {
-          var s = e(this),
-              r = a.type,
-              u = e(a.relatedTarget);if (null === s.attr("disabled")) {
-            if ("mouseover" === r) {
-              if (!s.is(u) && e.contains(s[0], u[0])) return;
-            } else if ("mouseout" === r && (s.is(u) || e.contains(s[0], u[0]))) return;var l = s.children(".mdui-menu");if ("mouseover" === r) {
-              if (l.length) {
-                var f = l.data("timeoutClose.mdui.menu");if (f && clearTimeout(f), l.hasClass("mdui-menu-open")) return;clearTimeout(i), n = i = setTimeout(function () {
-                  c(l);
-                }, t.options.subMenuDelay), l.data("timeoutOpen.mdui.menu", n);
-              }
-            } else if ("mouseout" === r && l.length) {
-              var p = l.data("timeoutOpen.mdui.menu");p && clearTimeout(p), n = o = setTimeout(function () {
-                d(l);
-              }, t.options.subMenuDelay), l.data("timeoutClose.mdui.menu", n);
-            }
-          }
-        });
-      }
-    };t.prototype.toggle = function () {
-      var t = this;"opening" === t.state || "opened" === t.state ? t.close() : "closing" !== t.state && "closed" !== t.state || t.open();
-    };var f = function f(t) {
-      t.$menu.removeClass("mdui-menu-closing"), "opening" === t.state && (t.state = "opened", r("opened", "menu", t, t.$menu)), "closing" === t.state && (t.state = "closed", r("closed", "menu", t, t.$menu), t.$menu.css({ top: "", left: "", width: "", position: "fixed" }));
-    };return t.prototype.open = function () {
-      var t = this;"opening" !== t.state && "opened" !== t.state && (t.state = "opening", r("open", "menu", t, t.$menu), a(t), t.$menu.css("position", t.options.fixed ? "fixed" : "absolute").addClass("mdui-menu-open").transitionEnd(function () {
-        f(t);
-      }));
-    }, t.prototype.close = function () {
-      var t = this;"closing" !== t.state && "closed" !== t.state && (t.state = "closing", r("close", "menu", t, t.$menu), t.$menu.find(".mdui-menu").each(function () {
-        d(e(this));
-      }), t.$menu.removeClass("mdui-menu-open").addClass("mdui-menu-closing").transitionEnd(function () {
-        f(t);
-      }));
-    }, t;
-  }(), e(function () {
-    n.on("click", "[mdui-menu]", function () {
-      var n = e(this),
-          i = n.data("mdui.menu");if (!i) {
-        var o = s(n.attr("mdui-menu")),
-            a = o.target;delete o.target, i = new t.Menu(n, a, o), n.data("mdui.menu", i), i.toggle();
-      }
-    });
-  }), t.JQ = e, t;
-});
-//# sourceMappingURL=mdui.min.js.map
+// window.Vue = require('vue');
 
 /***/ }),
 
@@ -31430,4 +31852,4 @@ module.exports = __webpack_require__("./resources/assets/sass/app.scss");
 
 /***/ })
 
-},[0]);
+/******/ });

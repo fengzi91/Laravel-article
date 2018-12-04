@@ -10,7 +10,7 @@ use Auth;
 use App\Handlers\ImageUploadHandler;
 use App\Models\Tag;
 use Markdown;
-
+use App\Transformers\RepliesTransformer;
 class TopicsController extends Controller
 {
     public function __construct()
@@ -79,7 +79,7 @@ class TopicsController extends Controller
 		return redirect()->route('topics.index')->with('message', 'Deleted successfully.');
 	}
     // 删除话题下的标签
-    public function deleteTag(Topic $topic, Request $request) 
+    public function deleteTag(Topic $topic, Request $request)
     {
         //拥有删除话题的权限，才可以删除标签
         $this->authorize('destroy', $topic);
@@ -87,11 +87,10 @@ class TopicsController extends Controller
         return redirect()->route('topics.show', $topic->id)->with('message', '成功删除一个标签！');
     }
     // 获取评论
-    public function getComments(Topic $topic, Request $request) 
+    public function getComments(Topic $topic, Request $request)
     {
-        $replies = $topic->replies()->with('user')->recent()->paginate(5);
-        return response()
-            ->json($replies);
+        $replies = $topic->replies()->with('user')->recent()->paginate(10);
+        return response()->json($topic->replies()->with('user'), new RepliesTransformer());
     }
   /**
    * 图片上传

@@ -6,9 +6,3 @@
  */
 
 require('./bootstrap');
-
-require('./mdui.min');
-
-
-
-
