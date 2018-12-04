@@ -8411,7 +8411,8 @@ body {
 /* Topic Index Page */
 
 .topics-index-page .topic-list .nav > li > a,
-.root-page .topic-list .nav > li > a {
+.root-page .topic-list .nav > li > a,
+.tags-show-page .topic-list .nav > li > a {
   position: relative;
   display: block;
   padding: 5px 14px;
@@ -8419,39 +8420,46 @@ body {
 }
 
 .topics-index-page .topic-list a,
-.root-page .topic-list a {
+.root-page .topic-list a,
+.tags-show-page .topic-list a {
   color: #444444;
 }
 
 .topics-index-page .topic-list .meta,
-.root-page .topic-list .meta {
+.root-page .topic-list .meta,
+.tags-show-page .topic-list .meta {
   font-size: 0.9em;
   color: #b3b3b3;
 }
 
 .topics-index-page .topic-list .meta a,
-.root-page .topic-list .meta a {
+.root-page .topic-list .meta a,
+.tags-show-page .topic-list .meta a {
   color: #b3b3b3;
 }
 
 .topics-index-page .topic-list .badge,
-.root-page .topic-list .badge {
+.root-page .topic-list .badge,
+.tags-show-page .topic-list .badge {
   background-color: #d8d8d8;
 }
 
 .topics-index-page .topic-list .media-list .media,
-.root-page .topic-list .media-list .media {
+.root-page .topic-list .media-list .media,
+.tags-show-page .topic-list .media-list .media {
   margin-top: 0;
 }
 
 .topics-index-page .topic-list .media-list .media .media-heading .topic-image,
-.root-page .topic-list .media-list .media .media-heading .topic-image {
+.root-page .topic-list .media-list .media .media-heading .topic-image,
+.tags-show-page .topic-list .media-list .media .media-heading .topic-image {
   display: block;
   position: relative;
 }
 
 .topics-index-page .topic-list .media-list .media .media-heading .topic-image h4,
-.root-page .topic-list .media-list .media .media-heading .topic-image h4 {
+.root-page .topic-list .media-list .media .media-heading .topic-image h4,
+.tags-show-page .topic-list .media-list .media .media-heading .topic-image h4 {
   position: absolute;
   bottom: 0px;
   left: 1em;
@@ -8459,7 +8467,8 @@ body {
 }
 
 .topics-index-page .topic-list .media-list .media .media-heading img,
-.root-page .topic-list .media-list .media .media-heading img {
+.root-page .topic-list .media-list .media .media-heading img,
+.tags-show-page .topic-list .media-list .media .media-heading img {
   width: 100%;
   max-height: 232px;
   border-radius: 4px;
@@ -8470,12 +8479,15 @@ body {
 .topics-index-page .topic-list .media-list .media .media-body,
 .topics-index-page .topic-list .media-list .media .media-info,
 .root-page .topic-list .media-list .media .media-body,
-.root-page .topic-list .media-list .media .media-info {
+.root-page .topic-list .media-list .media .media-info,
+.tags-show-page .topic-list .media-list .media .media-body,
+.tags-show-page .topic-list .media-list .media .media-info {
   padding: 8px 16px;
 }
 
 .topics-index-page .topic-list .media-list .media .media-body,
-.root-page .topic-list .media-list .media .media-body {
+.root-page .topic-list .media-list .media .media-body,
+.tags-show-page .topic-list .media-list .media .media-body {
   height: 56px;
 }
 

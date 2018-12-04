@@ -11,7 +11,7 @@ class RepliesController extends Controller
 {
     public function index(Topic $topic)
     {
-        $replies = $topic->replies()->paginate(2);
+        $replies = $topic->replies()->paginate(16);
         return $this->response->paginator($replies, new RepliesTransformer());
     }
 }

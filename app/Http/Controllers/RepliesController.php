@@ -16,12 +16,12 @@ class RepliesController extends Controller
 	public function store(ReplyRequest $request, Reply $reply)
 	{
 		// $reply->content = clean($request->content, 'user_topic_body');
-    $reply->content = $request->content;
-    $reply->user_id = Auth::id();
-    $reply->topic_id = $request->topic_id;
-    $reply->save();
-    $reply->user;
-    return ['error' => 0, 'message' => '回复成功', 'data' => $reply];
+        $reply->content = $request->content;
+        $reply->user_id = Auth::id();
+        $reply->topic_id = $request->topic_id;
+        $reply->save();
+        $reply->user;
+        return ['error' => 0, 'message' => '回复成功', 'data' => $reply];
 	}
 
 	public function destroy(Reply $reply)

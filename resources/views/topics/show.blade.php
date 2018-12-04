@@ -19,6 +19,12 @@
     </div>
     <div class="panel-body">
         {!! Markdown::html($topic->body) !!}
+
+        @if (count($topic->tags))
+        @foreach($topic->tags as $tag)
+        <a href="{{ route('tags.show', $tag->id)}}">{{$tag->name}}</a>
+        @endforeach
+        @endif
     </div>
 </div>
 <div class="panel panel-default topic-reply">
