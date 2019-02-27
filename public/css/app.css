@@ -8489,6 +8489,8 @@ body {
 .root-page .topic-list .media-list .media .media-body,
 .tags-show-page .topic-list .media-list .media .media-body {
   height: 56px;
+  display: inline-block;
+  width: auto;
 }
 
 .topic-reply hr {

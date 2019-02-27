@@ -36,7 +36,7 @@ Route::post('topics/deletetag/{topic}', 'TopicsController@deleteTag')->name('top
 Route::get('topics/comments/{topic}', 'TopicsController@getComments')->name('topics.getcomments');
 
 Route::resource('tags', 'TagsController', ['only' => [ 'show' ]]);
-Route::get('tags/{tag}/page/{page?}', 'TagsController@show');
+Route::get('tags/{tag}/page/{page?}', 'TagsController@show')->name('tags.show');
 // 新建一份历史档案
 Route::get('topic_edit/{topic}/create', 'TopicEditController@create')->name('topic_edit.create');
 // 审核一份文档
